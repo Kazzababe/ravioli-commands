@@ -1,0 +1,4 @@
+name: RavioliCommandsExample
+main: ravioli.gravioli.example.ExamplePlugin
+version: 1.0-SNAPSHOT
+api-version: 1.20
