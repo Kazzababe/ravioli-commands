@@ -216,7 +216,10 @@ public class CommandManager<T> {
         final CommandNode<?, T> rootNode = command.getRootNode();
         final CommandContext<T> commandContext = new CommandContext<>(commandSender, command);
 
-        return this.processSuggestionsForNode(command, commandContext, rootNode, traverser);
+        return this.processSuggestionsForNode(command, commandContext, rootNode, traverser)
+            .stream()
+            .distinct()
+            .toList();
     }
 
     private @NotNull List<Suggestion> processSuggestionsForNode(@NotNull final Command<T> command, @NotNull final CommandContext<T> context, @NotNull final CommandNode<?, T> node, @NotNull final StringTraverser traverser) {
