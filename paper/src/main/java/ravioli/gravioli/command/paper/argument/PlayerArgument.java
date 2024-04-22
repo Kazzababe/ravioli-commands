@@ -24,10 +24,18 @@ public final class PlayerArgument extends Argument<Player, PlayerArgument.Player
 
     private final PlayerArgumentParser parser;
 
+    private boolean allowNull;
+
     private PlayerArgument(final @NotNull String id) {
         super(id);
 
         this.parser = new PlayerArgumentParser(this);
+    }
+
+    public @NotNull PlayerArgument allowNull(final boolean allowNull) {
+        this.allowNull = allowNull;
+
+        return this;
     }
 
     @Override
@@ -52,8 +60,17 @@ public final class PlayerArgument extends Argument<Player, PlayerArgument.Player
         @Override
         public @NotNull ArgumentParseResult<Player> parse(@NotNull final CommandContext<CommandSender> commandContext, @NotNull final StringTraverser inputQueue) throws ArgumentParseException {
             final String input = inputQueue.readString();
+            final Player player = Bukkit.getPlayerExact(input);
 
-            return ArgumentParseResult.success(Bukkit.getPlayer(input));
+            if (player == null) {
+                if (this.argument.allowNull) {
+                    return ArgumentParseResult.ignore(null);
+                }
+                return ArgumentParseResult.failure(
+                    new ArgumentParseException("Could not find player with name: " + input)
+                );
+            }
+            return ArgumentParseResult.success(player);
         }
 
         @Override

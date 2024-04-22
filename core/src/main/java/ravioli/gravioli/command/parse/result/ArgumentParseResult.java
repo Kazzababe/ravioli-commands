@@ -5,10 +5,15 @@ import org.jetbrains.annotations.Nullable;
 import ravioli.gravioli.command.exception.ArgumentParseException;
 
 import java.util.Optional;
+import java.util.logging.Logger;
 
 public final class ArgumentParseResult<T> {
     public static <T> @NotNull ArgumentParseResult<T> success(@Nullable final T value) {
         return new ArgumentParseResult<>(ParseResult.SUCCESS, value, null);
+    }
+
+    public static <T> @NotNull ArgumentParseResult<T> ignore(@Nullable final T value) {
+        return new ArgumentParseResult<>(ParseResult.IGNORE, value, null);
     }
 
     public static <T> @NotNull ArgumentParseResult<T> failure(@NotNull final ArgumentParseException exception) {
@@ -39,6 +44,11 @@ public final class ArgumentParseResult<T> {
 
     public enum ParseResult {
         SUCCESS,
-        FAILURE;
+        FAILURE,
+        IGNORE;
+
+        public boolean isSuccess() {
+            return this == SUCCESS || this == IGNORE;
+        }
     }
 }

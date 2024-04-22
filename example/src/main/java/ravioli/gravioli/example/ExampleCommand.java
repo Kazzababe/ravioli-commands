@@ -7,6 +7,7 @@ import ravioli.gravioli.command.argument.EnumArgument;
 import ravioli.gravioli.command.argument.StringArgument;
 import ravioli.gravioli.command.paper.PaperCommand;
 import ravioli.gravioli.command.paper.PaperCommandTrack;
+import ravioli.gravioli.command.paper.argument.PlayerArgument;
 import ravioli.gravioli.command.paper.argument.location.CommandLocation;
 import ravioli.gravioli.command.paper.argument.location.LocationArgument;
 import ravioli.gravioli.command.paper.metadata.PaperCommandMetadata;
@@ -16,6 +17,7 @@ public final class ExampleCommand extends PaperCommand {
         this.add(
             PaperCommandTrack.command()
                 .argument(StringArgument.of("value"))
+                .argument(PlayerArgument.of("player"))
                 .handler(context -> context.getSender().sendMessage("Cool: " + context.<String>get("value")))
         );
         this.add(

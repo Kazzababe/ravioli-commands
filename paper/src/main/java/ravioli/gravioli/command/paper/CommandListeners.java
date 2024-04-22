@@ -7,6 +7,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.CommandSender;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ravioli.gravioli.command.Command;
@@ -19,6 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public final class CommandListeners implements Listener {
     private final PaperCommandManager commandManager;
+    private final Plugin plugin;
 
     @EventHandler
     private void onTabComplete(@NotNull final AsyncTabCompleteEvent event) {
@@ -57,18 +59,12 @@ public final class CommandListeners implements Listener {
         }
         final String[] parts = alias.split(":");
         final String namespace = parts[0];
-        final Command<CommandSender> rootCommand = this.commandManager.getCommand(namespace);
 
-        if (rootCommand == null) {
+        if (!namespace.equalsIgnoreCase(this.plugin.getName())) {
             return null;
         }
         final String remaining = String.join(" ", Arrays.copyOfRange(parts, 1, parts.length));
 
-        if (!rootCommand.getAllAliases().contains(remaining.toLowerCase())) {
-            return null;
-        }
-        return rootCommand;
+        return this.commandManager.getCommand(remaining);
     }
-
-
 }

@@ -12,6 +12,8 @@ import ravioli.gravioli.command.CommandManager;
 import ravioli.gravioli.command.CommandNode;
 import ravioli.gravioli.command.exception.permission.InsufficientPermissionsException;
 
+import java.util.Locale;
+
 public final class PaperCommandManager extends CommandManager<CommandSender> {
     private final Plugin plugin;
 
@@ -52,15 +54,13 @@ public final class PaperCommandManager extends CommandManager<CommandSender> {
         if (!this.registeredListener) {
             this.registeredListener = true;
 
-            Bukkit.getPluginManager().registerEvents(new CommandListeners(this), this.plugin);
+            Bukkit.getPluginManager().registerEvents(new CommandListeners(this, this.plugin), this.plugin);
         }
         final CommandMap commandMap = Bukkit.getCommandMap();
         final String commandName = command.getCommandMetadata().getName().toLowerCase();
 
-        if (commandMap.getKnownCommands().containsKey(commandName)) {
-            return;
-        }
-        commandMap.register(commandName, new PaperCommandWrapper(this, command));
+//        commandMap.getKnownCommands().remove(commandName);
+        commandMap.register(commandName, this.plugin.getName().toLowerCase(Locale.ROOT), new PaperCommandWrapper(this, command));
     }
 
     @Override

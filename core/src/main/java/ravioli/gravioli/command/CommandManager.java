@@ -101,7 +101,7 @@ public class CommandManager<T> {
             }
             final ArgumentParseResult<?> parseResult = argumentParser.parse(localContext, traverser);
 
-            if (parseResult.getResult() != ArgumentParseResult.ParseResult.SUCCESS) {
+            if (!parseResult.getResult().isSuccess()) {
                 throw parseResult.getException().get();
             }
             parseResult.getValue().ifPresent(value -> localContext.supply(argument.getId(), value));
@@ -235,7 +235,7 @@ public class CommandManager<T> {
             final StringTraverser localTraverser = new StringTraverser(traverser);
             final ArgumentParseResult<?> parseResult = argumentParser.parse(localContext, localTraverser);
 
-            if (parseResult.getResult() != ArgumentParseResult.ParseResult.SUCCESS) {
+            if (!parseResult.getResult().isSuccess()) {
                 localTraverser.apply(traverser);
 
                 throw parseResult.getException().get();
@@ -243,6 +243,9 @@ public class CommandManager<T> {
             parseResult.getValue().ifPresent(value -> localContext.supply(argument.getId(), value));
 
             if (!localTraverser.hasNext()) {
+                if (parseResult.getResult() == ArgumentParseResult.ParseResult.IGNORE) {
+                    return argumentParser.getSuggestionProvider().getSuggestions(context, originalTraverser);
+                }
                 return Collections.emptyList();
             }
             final List<CommandNode<?, T>> children = node.getChildren();
