@@ -31,6 +31,11 @@ public final class PlayerArgument extends Argument<Player, PlayerArgument.Player
     }
 
     @Override
+    public int getPriority() {
+        return 10;
+    }
+
+    @Override
     public @NotNull PlayerArgument.PlayerArgumentParser getParser() {
         return this.parser;
     }
