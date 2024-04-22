@@ -72,14 +72,17 @@ public final class StringArgument<K> extends Argument<String, StringArgument.Str
 
         @Override
         public @NotNull SuggestionProvider<K> getSuggestionProvider() {
-            return (context, inputQueue) -> {
-                if (!inputQueue.hasNext()) {
-                    return Collections.singletonList(
-                        Suggestion.text(this.argument.getUsageRepresentation())
-                    );
-                }
-                return Collections.emptyList();
-            };
+            return Optional.ofNullable(this.argument.getSuggestionProvider())
+                .orElseGet(() ->
+                    (context, inputQueue) -> {
+                        if (!inputQueue.hasNext()) {
+                            return Collections.singletonList(
+                                Suggestion.text(this.argument.getUsageRepresentation())
+                            );
+                        }
+                        return Collections.emptyList();
+                    }
+                );
         }
     }
 
