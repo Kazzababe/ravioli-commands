@@ -34,6 +34,11 @@ public final class LiteralArgument<K> extends Argument<String, LiteralArgument.L
     }
 
     @Override
+    public int getPriority() {
+        return Integer.MAX_VALUE;
+    }
+
+    @Override
     public @NotNull LiteralArgumentParser<K> getParser() {
         return this.parser;
     }
