@@ -1,9 +1,7 @@
 package ravioli.gravioli.example;
 
-import org.bukkit.Material;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
-import ravioli.gravioli.command.argument.EnumArgument;
 import ravioli.gravioli.command.argument.StringArgument;
 import ravioli.gravioli.command.paper.PaperCommand;
 import ravioli.gravioli.command.paper.PaperCommandTrack;

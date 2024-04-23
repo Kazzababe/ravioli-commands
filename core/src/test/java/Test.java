@@ -12,14 +12,10 @@ public final class Test {
 
         commandManager.registerCommand(new ExampleCommand());
         final var result1 = commandManager.processCommand(new Object(), "test", "test this command");
-        final var suggestions1 = commandManager.processSuggestions(new Object(), "test", "test this command value");
         final var suggestions2 = commandManager.processSuggestions(new Object(), "test", "test this command valu");
-        final var suggestions3 = commandManager.processSuggestions(new Object(), "test", "test this command value2 ");
 
         result1.getCommandExecution().run();
-        System.out.println(suggestions1);
         System.out.println(suggestions2);
-        System.out.println(suggestions3);
     }
 
     public static final class ExampleCommand extends Command<Object> {

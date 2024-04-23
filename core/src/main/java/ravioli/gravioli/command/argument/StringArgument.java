@@ -49,7 +49,7 @@ public final class StringArgument<K> extends Argument<String, StringArgument.Str
         }
 
         @Override
-        public @NotNull ArgumentParseResult<String> parse(@NotNull final CommandContext<K> commandContext, @NotNull final StringTraverser inputQueue) throws ArgumentParseException {
+        public @NotNull ArgumentParseResult<String> parse(@NotNull final CommandContext<K> commandContext, @NotNull final StringTraverser inputQueue){
             if (!inputQueue.hasNext()) {
                 return ArgumentParseResult.failure(
                     new ArgumentParseException("Cannot accept empty argument for string arguments.")

@@ -51,7 +51,7 @@ public final class IntegerArgument<K> extends Argument<Integer, IntegerArgument.
         }
 
         @Override
-        public @NotNull ArgumentParseResult<Integer> parse(@NotNull final CommandContext<K> commandContext, @NotNull final StringTraverser inputQueue) throws ArgumentParseException {
+        public @NotNull ArgumentParseResult<Integer> parse(@NotNull final CommandContext<K> commandContext, @NotNull final StringTraverser inputQueue){
             final String input = inputQueue.readString();
 
             try {
@@ -74,7 +74,7 @@ public final class IntegerArgument<K> extends Argument<Integer, IntegerArgument.
 
                         return IntStream.rangeClosed(0, 9)
                             .filter(number -> String.valueOf(number).startsWith(input))
-                            .mapToObj(number -> Suggestion.basic(String.valueOf(number)))
+                            .mapToObj(number -> Suggestion.replaceBasic(input, String.valueOf(number)))
                             .toList();
                     }
                 );

@@ -58,7 +58,7 @@ public final class PlayerArgument extends Argument<Player, PlayerArgument.Player
         }
 
         @Override
-        public @NotNull ArgumentParseResult<Player> parse(@NotNull final CommandContext<CommandSender> commandContext, @NotNull final StringTraverser inputQueue) throws ArgumentParseException {
+        public @NotNull ArgumentParseResult<Player> parse(@NotNull final CommandContext<CommandSender> commandContext, @NotNull final StringTraverser inputQueue){
             final String input = inputQueue.readString();
             final Player player = Bukkit.getPlayerExact(input);
 
@@ -78,14 +78,14 @@ public final class PlayerArgument extends Argument<Player, PlayerArgument.Player
             return Optional.ofNullable(this.argument.getSuggestionProvider())
                 .orElseGet(() ->
                     (context, inputQueue) -> {
-                        final String input = inputQueue.readString()
-                            .toLowerCase();
+                        final String input = inputQueue.readString();
+                        final String lowerCaseInput = input.toLowerCase();
 
                         return Bukkit.getOnlinePlayers()
                             .stream()
                             .map(Player::getName)
-                            .filter(name -> name.toLowerCase().startsWith(input))
-                            .map(Suggestion::text)
+                            .filter(name -> name.toLowerCase().startsWith(lowerCaseInput))
+                            .map(name -> Suggestion.replaceBasic(input, name))
                             .toList();
                     }
                 );

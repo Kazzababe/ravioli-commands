@@ -59,7 +59,7 @@ public final class RootArgument<K> extends Argument<String, RootArgument.RootArg
         }
 
         @Override
-        public @NotNull ArgumentParseResult<String> parse(@NotNull final CommandContext<K> commandContext, @NotNull final StringTraverser inputQueue) throws ArgumentParseException {
+        public @NotNull ArgumentParseResult<String> parse(@NotNull final CommandContext<K> commandContext, @NotNull final StringTraverser inputQueue){
             final String input = inputQueue.readString();
 
             if (this.matches.contains(input.toLowerCase())) {
@@ -73,12 +73,13 @@ public final class RootArgument<K> extends Argument<String, RootArgument.RootArg
             return Optional.ofNullable(this.argument.getSuggestionProvider())
                 .orElseGet(() ->
                     (context, inputQueue) -> {
-                        final String input = inputQueue.readString().toLowerCase();
+                        final String input = inputQueue.readString();
+                        final String lowerCaseInput = input.toLowerCase();
 
                         return this.matches
                             .stream()
-                            .filter(match -> match.startsWith(input))
-                            .map(Suggestion::basic)
+                            .filter(match -> match.startsWith(lowerCaseInput))
+                            .map(match -> Suggestion.replaceBasic(input, match))
                             .toList();
                     }
                 );

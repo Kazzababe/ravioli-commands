@@ -56,7 +56,7 @@ public final class LiteralArgument<K> extends Argument<String, LiteralArgument.L
         }
 
         @Override
-        public @NotNull ArgumentParseResult<String> parse(@NotNull final CommandContext<K> commandContext, @NotNull final StringTraverser inputQueue) throws ArgumentParseException {
+        public @NotNull ArgumentParseResult<String> parse(@NotNull final CommandContext<K> commandContext, @NotNull final StringTraverser inputQueue){
             final String next = inputQueue.readString();
 
             if (next.equalsIgnoreCase(this.match)) {
@@ -70,10 +70,11 @@ public final class LiteralArgument<K> extends Argument<String, LiteralArgument.L
             return Optional.ofNullable(this.argument.getSuggestionProvider())
                 .orElseGet(() ->
                     (context, inputQueue) -> {
-                        final String input = inputQueue.readString().toLowerCase();
+                        final String input = inputQueue.readString();
+                        final String lowerCaseInput = input.toLowerCase();
 
-                        if (this.match.startsWith(input)) {
-                            return Collections.singletonList(Suggestion.basic(this.match));
+                        if (this.match.startsWith(lowerCaseInput)) {
+                            return Collections.singletonList(Suggestion.replaceBasic(input, this.match));
                         }
                         return Collections.emptyList();
                     }

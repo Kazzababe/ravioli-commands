@@ -51,7 +51,7 @@ public final class DoubleArgument<K> extends Argument<Double, DoubleArgument.Dou
         }
 
         @Override
-        public @NotNull ArgumentParseResult<Double> parse(@NotNull final CommandContext<K> commandContext, @NotNull final StringTraverser inputQueue) throws ArgumentParseException {
+        public @NotNull ArgumentParseResult<Double> parse(@NotNull final CommandContext<K> commandContext, @NotNull final StringTraverser inputQueue) {
             final String input = inputQueue.readString();
 
             try {
@@ -74,7 +74,7 @@ public final class DoubleArgument<K> extends Argument<Double, DoubleArgument.Dou
 
                         return DoubleStream.of(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0)
                             .filter(number -> String.valueOf(number).startsWith(input))
-                            .mapToObj(number -> Suggestion.basic(String.valueOf(number)))
+                            .mapToObj(number -> Suggestion.replaceBasic(input, String.valueOf(number)))
                             .toList();
                     }
                 );

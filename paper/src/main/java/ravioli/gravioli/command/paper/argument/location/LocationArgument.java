@@ -2,22 +2,20 @@ package ravioli.gravioli.command.paper.argument.location;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
-import org.checkerframework.checker.units.qual.K;
 import org.jetbrains.annotations.NotNull;
 import ravioli.gravioli.command.argument.Argument;
 import ravioli.gravioli.command.argument.ArgumentParser;
-import ravioli.gravioli.command.argument.IntegerArgument;
 import ravioli.gravioli.command.argument.suggestion.Suggestion;
 import ravioli.gravioli.command.argument.suggestion.SuggestionProvider;
 import ravioli.gravioli.command.context.CommandContext;
 import ravioli.gravioli.command.exception.ArgumentParseException;
 import ravioli.gravioli.command.exception.parse.InvalidLocationFormatException;
-import ravioli.gravioli.command.paper.argument.PlayerArgument;
 import ravioli.gravioli.command.parse.StringTraverser;
 import ravioli.gravioli.command.parse.result.ArgumentParseResult;
 
@@ -62,28 +60,38 @@ public final class LocationArgument extends Argument<CommandLocation, LocationAr
             }
             int argumentCount = 0;
 
-            while (inputQueue.hasNext() && argumentCount < 3) {
+            while (inputQueue.hasNext()) {
+                if (argumentCount > 3) {
+                    return false;
+                }
                 inputQueue.traverseWhitespace();
 
                 if (!inputQueue.hasNext()) {
                     break;
                 }
-                final String potentialArg = inputQueue.peekString();
+                final String potentialArg = inputQueue.readString();
 
                 if (!this.isValidCoordinateArgument(potentialArg)) {
-                    break;
+                    return false;
                 }
-                inputQueue.readString();
                 argumentCount++;
             }
-            return argumentCount > 0 && argumentCount <= 3;
+            return argumentCount >= 0 && argumentCount <= 3;
         }
 
         @Override
-        public @NotNull ArgumentParseResult<CommandLocation> parse(@NotNull final CommandContext<CommandSender> commandContext, @NotNull final StringTraverser inputQueue) throws ArgumentParseException {
-            final CoordinateResult x = this.parseCoordinate(inputQueue);
-            final CoordinateResult y = this.parseCoordinate(inputQueue);
-            final CoordinateResult z = this.parseCoordinate(inputQueue);
+        public @NotNull ArgumentParseResult<CommandLocation> parse(@NotNull final CommandContext<CommandSender> commandContext, @NotNull final StringTraverser inputQueue){
+            final CoordinateResult x;
+            final CoordinateResult y;
+            final CoordinateResult z;
+
+            try {
+                x = this.parseCoordinate(inputQueue);
+                y = this.parseCoordinate(inputQueue);
+                z = this.parseCoordinate(inputQueue);
+            } catch (final ArgumentParseException e) {
+                return ArgumentParseResult.failure(e);
+            }
             final Location origin;
 
             if (commandContext.getSender() instanceof final Entity entity) {
@@ -112,9 +120,17 @@ public final class LocationArgument extends Argument<CommandLocation, LocationAr
                     (context, inputQueue) -> {
                         final List<Suggestion> suggestions = new ArrayList<>();
                         final List<String> enteredCoords = new ArrayList<>();
+                        final List<String> whitespaceBetween = new ArrayList<>();
+                        final StringBuilder previousInput = new StringBuilder();
 
                         while (inputQueue.hasNext() && enteredCoords.size() < 3) {
-                            inputQueue.traverseWhitespace();
+                            final int whitespace = inputQueue.traverseWhitespace();
+                            final String spacer = StringUtils.repeat(' ', whitespace);
+
+                            if (!previousInput.isEmpty()) {
+                                previousInput.append(spacer);
+                            }
+                            whitespaceBetween.add(spacer);
 
                             if (!inputQueue.hasNext()) {
                                 break;
@@ -122,24 +138,20 @@ public final class LocationArgument extends Argument<CommandLocation, LocationAr
                             final String coordinate = inputQueue.readString();
 
                             enteredCoords.add(coordinate);
+                            previousInput.append(coordinate);
                         }
-                        final StringBuilder suggestionTooltipBuilder = new StringBuilder();
+                        final String input = previousInput.toString();
+                        final StringBuilder suggestionBuilder = new StringBuilder(input);
 
-                        for (int i = 0; i < 3; i++) {
-                            if (i < enteredCoords.size()) {
-                                suggestionTooltipBuilder.append(enteredCoords.get(i));
-                            } else {
-                                suggestionTooltipBuilder.append(RELATIVE_PREFIX);
+                        for (int i = enteredCoords.size(); i < 3; i++) {
+                            if (i > 0) {
+                                suggestionBuilder.append(i < whitespaceBetween.size() ? whitespaceBetween.get(i - 1) : " ");
                             }
-                            if (i < 2) {
-                                suggestionTooltipBuilder.append(" ");
-                            }
+                            suggestionBuilder.append(RELATIVE_PREFIX);
                         }
-                        final String tooltip = suggestionTooltipBuilder.toString();
-                        final String input = String.join(" ", enteredCoords);
-                        final String remainingInput = tooltip.substring(input.length()).trim();
+                        final String suggestion = suggestionBuilder.toString();
 
-                        suggestions.add(Suggestion.text(remainingInput));
+                        suggestions.add(Suggestion.replaceText(input, suggestion));
 
                         return suggestions;
                     }
@@ -150,7 +162,7 @@ public final class LocationArgument extends Argument<CommandLocation, LocationAr
             if (arg.startsWith(RELATIVE_PREFIX)) {
                 arg = arg.substring(1);
             }
-            if (arg.isEmpty()) {
+            if (arg.isBlank()) {
                 return true;
             }
             try {

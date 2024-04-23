@@ -56,7 +56,7 @@ public final class EnumArgument<E extends Enum<E>, K> extends Argument<E, EnumAr
         }
 
         @Override
-        public @NotNull ArgumentParseResult<E> parse(@NotNull final CommandContext<K> commandContext, @NotNull final StringTraverser inputQueue) throws ArgumentParseException {
+        public @NotNull ArgumentParseResult<E> parse(@NotNull final CommandContext<K> commandContext, @NotNull final StringTraverser inputQueue){
             final String input = inputQueue.readString();
 
             if (this.enumValues.contains(input.toLowerCase())) {
@@ -68,12 +68,13 @@ public final class EnumArgument<E extends Enum<E>, K> extends Argument<E, EnumAr
         @Override
         public @NotNull SuggestionProvider<K> getSuggestionProvider() {
             return (context, inputQueue) -> {
-                final String input = inputQueue.readString().toLowerCase();
+                final String input = inputQueue.readString();
+                final String lowerCaseInput = input.toLowerCase();
 
                 return this.enumValues
                         .stream()
-                        .filter(enumValue -> enumValue.startsWith(input))
-                        .map(Suggestion::basic)
+                        .filter(enumValue -> enumValue.startsWith(lowerCaseInput))
+                        .map(enumValue -> Suggestion.replaceBasic(input, enumValue))
                         .toList();
             };
         }

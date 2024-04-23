@@ -11,8 +11,13 @@ import ravioli.gravioli.command.Command;
 import ravioli.gravioli.command.CommandManager;
 import ravioli.gravioli.command.CommandNode;
 import ravioli.gravioli.command.exception.permission.InsufficientPermissionsException;
+import ravioli.gravioli.command.paper.net.PlayerPacketInterceptor;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
 public final class PaperCommandManager extends CommandManager<CommandSender> {
     private final Plugin plugin;
@@ -54,7 +59,7 @@ public final class PaperCommandManager extends CommandManager<CommandSender> {
         if (!this.registeredListener) {
             this.registeredListener = true;
 
-            Bukkit.getPluginManager().registerEvents(new CommandListeners(this, this.plugin), this.plugin);
+            Bukkit.getPluginManager().registerEvents(new CommandListeners(this), this.plugin);
         }
         final CommandMap commandMap = Bukkit.getCommandMap();
         final String commandName = command.getCommandMetadata().getName().toLowerCase();
@@ -73,5 +78,20 @@ public final class PaperCommandManager extends CommandManager<CommandSender> {
 
     public void enableAsynchronousCommandExecution() {
         this.setDefaultExecutor(task -> Bukkit.getScheduler().runTaskAsynchronously(this.plugin, task));
+    }
+
+    public @Nullable Command<CommandSender> findCommand(@NotNull final String alias) {
+        if (!alias.contains(":")) {
+            return this.getCommand(alias);
+        }
+        final String[] parts = alias.split(":");
+        final String namespace = parts[0];
+
+        if (!namespace.equalsIgnoreCase(this.plugin.getName())) {
+            return null;
+        }
+        final String remaining = String.join(" ", Arrays.copyOfRange(parts, 1, parts.length));
+
+        return this.getCommand(remaining);
     }
 }

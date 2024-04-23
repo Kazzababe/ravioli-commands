@@ -168,10 +168,15 @@ public final class StringTraverser {
         }
     }
 
-    public void traverseWhitespace() {
+    public int traverseWhitespace() {
+        int amount = 0;
+
         while (this.hasNext() && Character.isSpaceChar(this.current())) {
             this.next();
+
+            amount++;
         }
+        return amount;
     }
 
     public void apply(@NotNull final StringTraverser stringTraverser) {

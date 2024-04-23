@@ -1,70 +1,67 @@
 package ravioli.gravioli.command.paper;
 
-import com.destroystokyo.paper.event.server.AsyncTabCompleteEvent;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.minecraft.server.level.ServerPlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import ravioli.gravioli.command.Command;
 import ravioli.gravioli.command.argument.suggestion.Suggestion;
+import ravioli.gravioli.command.paper.event.AsyncRavioliTabCompleteEvent;
+import ravioli.gravioli.command.paper.net.PlayerPacketInterceptor;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public final class CommandListeners implements Listener {
     private final PaperCommandManager commandManager;
-    private final Plugin plugin;
+    private final Map<UUID, PlayerPacketInterceptor> packetInterceptors = new HashMap<>();
 
     @EventHandler
-    private void onTabComplete(@NotNull final AsyncTabCompleteEvent event) {
-        final String buffer = event.getBuffer();
-
-        if (buffer.isEmpty()) {
-            return;
-        }
-        final String unprefixedBuffer = buffer.substring(1);
-        final String alias = unprefixedBuffer.split(" ")[0];
-        final Command<CommandSender> command = this.findCommand(alias);
-
-        if (command == null) {
-            return;
-        }
-        final String formattedBuffer = command.getCommandMetadata().getName() + unprefixedBuffer.substring(alias.length());
-        final List<Suggestion> suggestions = this.commandManager.processSuggestions(event.getSender(), command, formattedBuffer);
+    private void onTabComplete(@NotNull final AsyncRavioliTabCompleteEvent event) {
+        final Command<CommandSender> command = event.getCommand();
+        final String buffer = event.getProcessableBuffer();
+        final List<Suggestion> suggestions = this.commandManager.processSuggestions(event.getPlayer(), command, buffer);
 
         if (suggestions.isEmpty()) {
             return;
         }
-        final List<AsyncTabCompleteEvent.Completion> completions = new ArrayList<>(event.completions());
+        final List<Suggestion> completions = new ArrayList<>(event.getSuggestions());
 
-        suggestions.forEach(suggestion -> {
-            completions.add(AsyncTabCompleteEvent.Completion.completion(
-                suggestion.text(),
-                MiniMessage.miniMessage().deserialize("<gray>" + suggestion.tooltip())
-            ));
-        });
-        event.completions(completions);
+        completions.addAll(suggestions);
+        event.setSuggestions(completions);
     }
 
-    private @Nullable Command<CommandSender> findCommand(@NotNull final String alias) {
-        if (!alias.contains(":")) {
-            return this.commandManager.getCommand(alias);
-        }
-        final String[] parts = alias.split(":");
-        final String namespace = parts[0];
+    @EventHandler
+    private void onPlayerJoin(@NotNull final PlayerJoinEvent event) {
+        final Player player = event.getPlayer();
+        final ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
+        final PlayerPacketInterceptor packetInterceptor = new PlayerPacketInterceptor(this.commandManager, player);
 
-        if (!namespace.equalsIgnoreCase(this.plugin.getName())) {
-            return null;
-        }
-        final String remaining = String.join(" ", Arrays.copyOfRange(parts, 1, parts.length));
+        this.packetInterceptors.put(player.getUniqueId(), packetInterceptor);
+        serverPlayer.connection.connection.channel.pipeline().addBefore("packet_handler", player.getName(), packetInterceptor);
+    }
 
-        return this.commandManager.getCommand(remaining);
+    @EventHandler
+    private void onPlayerQuit(@NotNull final PlayerQuitEvent event) {
+        final Player player = event.getPlayer();
+        final PlayerPacketInterceptor packetInterceptor = this.packetInterceptors.remove(player.getUniqueId());
+
+        if (packetInterceptor == null) {
+            return;
+        }
+        final ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
+
+        serverPlayer.connection.connection.channel.pipeline().remove(packetInterceptor);
     }
 }
