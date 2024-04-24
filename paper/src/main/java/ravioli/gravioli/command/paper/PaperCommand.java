@@ -4,7 +4,6 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import ravioli.gravioli.command.Command;
 import ravioli.gravioli.command.CommandTrack;
-import ravioli.gravioli.command.metadata.CommandMetadata;
 import ravioli.gravioli.command.paper.metadata.PaperCommandMetadata;
 
 public abstract class PaperCommand extends Command<CommandSender> {

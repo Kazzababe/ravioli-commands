@@ -99,7 +99,7 @@ public class CommandManager<T> {
                     argument.getPriority()
                 );
             }
-            final ArgumentParseResult<?> parseResult = argumentParser.parse(localContext, traverser);
+            final ArgumentParseResult<?> parseResult = argumentParser.parse(localContext, traverser, false);
 
             if (!parseResult.getResult().isSuccess()) {
                 throw parseResult.getException().get();
@@ -128,9 +128,9 @@ public class CommandManager<T> {
                     return new NodeParseResult<>(
                         CommandParseResult.success(() -> {
                             final Executor executor = Optional.ofNullable(command.getNodeExecutors().get(node.getId()))
-                                    .orElseGet(() -> Optional.ofNullable(command.getCommandMetadata().getDefaultExecutor())
-                                        .orElseGet(() -> this.defaultExecutor)
-                                    );
+                                .orElseGet(() -> Optional.ofNullable(command.getCommandMetadata().getDefaultExecutor())
+                                    .orElseGet(() -> this.defaultExecutor)
+                                );
 
                             if (executor == null) {
                                 handler.accept(localContext);
@@ -228,25 +228,25 @@ public class CommandManager<T> {
         final ArgumentParser<?, T> argumentParser = argument.getParser();
 
         try {
-            if (!argumentParser.preParse(new CommandContext<>(context), new StringTraverser(traverser))) {
+            if (!argumentParser.isOrCouldBeValid(new CommandContext<>(context), new StringTraverser(traverser))) {
                 return Collections.emptyList();
             }
             final CommandContext<T> localContext = new CommandContext<>(context);
             final StringTraverser localTraverser = new StringTraverser(traverser);
-            final ArgumentParseResult<?> parseResult = argumentParser.parse(localContext, localTraverser);
+            final ArgumentParseResult<?> parseResult = argumentParser.parse(localContext, localTraverser, true);
 
             if (!parseResult.getResult().isSuccess()) {
-                localTraverser.apply(traverser);
+                localTraverser.apply(originalTraverser);
 
+                if (parseResult.getResult() == ArgumentParseResult.ParseResult.PROGRESS_SUGGESTIONS) {
+                    return argumentParser.getSuggestionProvider().getSuggestions(new CommandContext<>(context), new StringTraverser(traverser));
+                }
                 throw parseResult.getException().get();
             }
             parseResult.getValue().ifPresent(value -> localContext.supply(argument.getId(), value));
 
             if (!localTraverser.hasNext()) {
-                if (parseResult.getResult() == ArgumentParseResult.ParseResult.IGNORE) {
-                    return argumentParser.getSuggestionProvider().getSuggestions(context, originalTraverser);
-                }
-                return Collections.emptyList();
+                return argumentParser.getSuggestionProvider().getSuggestions(context, originalTraverser);
             }
             final List<CommandNode<?, T>> children = node.getChildren();
             final List<Suggestion> suggestions = new ArrayList<>();
@@ -264,10 +264,10 @@ public class CommandManager<T> {
             }
             return suggestions;
         } catch (final ArgumentParseException e) {
-            if (traverser.hasNext()) {
+            if (originalTraverser.hasNext()) {
                 return Collections.emptyList();
             }
-            return argumentParser.getSuggestionProvider().getSuggestions(context, originalTraverser);
+            return argumentParser.getSuggestionProvider().getSuggestions(context, new StringTraverser(traverser));
         }
     }
 
@@ -290,6 +290,23 @@ public class CommandManager<T> {
     private @Nullable String getPermissionForNode(@NotNull final Command<T> command, @NotNull final CommandNode<?, T> node) {
         return Optional.ofNullable(command.getNodePermissions().get(node.getId()))
             .orElseGet(command.getCommandMetadata()::getPermission);
+    }
+
+    public final void printCommandTree() {
+        this.registeredCommands
+            .values()
+            .stream()
+            .distinct()
+            .forEach(command -> this.printNode(command.getRootNode(), ""));
+    }
+
+    private void printNode(@NotNull final CommandNode<?, T> node, @NotNull final String indent) {
+        if (node.getArgument() != null) {
+            System.out.println(indent + node.getArgument().getId());
+        }
+        for (final CommandNode<?, T> child : node.getChildren()) {
+            this.printNode(child, indent + "  ");
+        }
     }
 
     private record NodeParseResult<T>(@NotNull CommandParseResult<T> parseResult, int priority) {

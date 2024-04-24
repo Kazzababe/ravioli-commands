@@ -4,7 +4,6 @@ import org.jetbrains.annotations.NotNull;
 import ravioli.gravioli.command.argument.suggestion.Suggestion;
 import ravioli.gravioli.command.argument.suggestion.SuggestionProvider;
 import ravioli.gravioli.command.context.CommandContext;
-import ravioli.gravioli.command.exception.ArgumentParseException;
 import ravioli.gravioli.command.exception.parse.RootArgumentMismatchException;
 import ravioli.gravioli.command.metadata.CommandMetadata;
 import ravioli.gravioli.command.parse.StringTraverser;
@@ -59,7 +58,12 @@ public final class RootArgument<K> extends Argument<String, RootArgument.RootArg
         }
 
         @Override
-        public @NotNull ArgumentParseResult<String> parse(@NotNull final CommandContext<K> commandContext, @NotNull final StringTraverser inputQueue){
+        public boolean isOrCouldBeValid(@NotNull final CommandContext<K> commandContext, @NotNull final StringTraverser inputQueue) {
+            return this.preParse(commandContext, inputQueue);
+        }
+
+        @Override
+        public @NotNull ArgumentParseResult<String> parse(@NotNull final CommandContext<K> commandContext, @NotNull final StringTraverser inputQueue, final boolean suggestions) {
             final String input = inputQueue.readString();
 
             if (this.matches.contains(input.toLowerCase())) {

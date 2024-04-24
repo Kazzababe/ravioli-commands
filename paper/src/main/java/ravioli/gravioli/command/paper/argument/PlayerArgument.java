@@ -58,13 +58,21 @@ public final class PlayerArgument extends Argument<Player, PlayerArgument.Player
         }
 
         @Override
-        public @NotNull ArgumentParseResult<Player> parse(@NotNull final CommandContext<CommandSender> commandContext, @NotNull final StringTraverser inputQueue){
+        public boolean isOrCouldBeValid(@NotNull final CommandContext<CommandSender> commandContext, @NotNull final StringTraverser inputQueue) {
+            return this.preParse(commandContext, inputQueue);
+        }
+
+        @Override
+        public @NotNull ArgumentParseResult<Player> parse(@NotNull final CommandContext<CommandSender> commandContext, @NotNull final StringTraverser inputQueue, final boolean suggestions){
             final String input = inputQueue.readString();
             final Player player = Bukkit.getPlayerExact(input);
 
+            if (suggestions && !input.isBlank()) {
+                return ArgumentParseResult.processSuggestions();
+            }
             if (player == null) {
                 if (this.argument.allowNull) {
-                    return ArgumentParseResult.ignore(null);
+                    return ArgumentParseResult.success(null);
                 }
                 return ArgumentParseResult.failure(
                     new ArgumentParseException("Could not find player with name: " + input)

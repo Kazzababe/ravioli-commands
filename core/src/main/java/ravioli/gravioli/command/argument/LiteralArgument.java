@@ -6,13 +6,11 @@ import org.jetbrains.annotations.NotNull;
 import ravioli.gravioli.command.argument.suggestion.Suggestion;
 import ravioli.gravioli.command.argument.suggestion.SuggestionProvider;
 import ravioli.gravioli.command.context.CommandContext;
-import ravioli.gravioli.command.exception.ArgumentParseException;
 import ravioli.gravioli.command.exception.parse.LiteralArgumentMismatchException;
 import ravioli.gravioli.command.parse.StringTraverser;
 import ravioli.gravioli.command.parse.result.ArgumentParseResult;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 public final class LiteralArgument<K> extends Argument<String, LiteralArgument.LiteralArgumentParser<K>, K, LiteralArgument<K>> {
@@ -56,7 +54,12 @@ public final class LiteralArgument<K> extends Argument<String, LiteralArgument.L
         }
 
         @Override
-        public @NotNull ArgumentParseResult<String> parse(@NotNull final CommandContext<K> commandContext, @NotNull final StringTraverser inputQueue){
+        public boolean isOrCouldBeValid(@NotNull final CommandContext<K> commandContext, @NotNull final StringTraverser inputQueue) {
+            return this.preParse(commandContext, inputQueue);
+        }
+
+        @Override
+        public @NotNull ArgumentParseResult<String> parse(@NotNull final CommandContext<K> commandContext, @NotNull final StringTraverser inputQueue, final boolean suggestions) {
             final String next = inputQueue.readString();
 
             if (next.equalsIgnoreCase(this.match)) {

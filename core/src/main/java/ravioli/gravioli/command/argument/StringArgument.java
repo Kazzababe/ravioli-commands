@@ -7,13 +7,11 @@ import ravioli.gravioli.command.argument.suggestion.Suggestion;
 import ravioli.gravioli.command.argument.suggestion.SuggestionProvider;
 import ravioli.gravioli.command.context.CommandContext;
 import ravioli.gravioli.command.exception.ArgumentParseException;
-import ravioli.gravioli.command.exception.number.NumberArgumentFormatException;
 import ravioli.gravioli.command.parse.StringTraverser;
 import ravioli.gravioli.command.parse.result.ArgumentParseResult;
 
 import java.util.Collections;
 import java.util.Optional;
-import java.util.stream.IntStream;
 
 public final class StringArgument<K> extends Argument<String, StringArgument.StringArgumentParser<K>, K, StringArgument<K>> {
     public static <T> @NotNull StringArgument<T> of(@NotNull final String id, @NotNull final StringMode stringMode) {
@@ -49,11 +47,14 @@ public final class StringArgument<K> extends Argument<String, StringArgument.Str
         }
 
         @Override
-        public @NotNull ArgumentParseResult<String> parse(@NotNull final CommandContext<K> commandContext, @NotNull final StringTraverser inputQueue){
+        public boolean isOrCouldBeValid(@NotNull final CommandContext<K> commandContext, @NotNull final StringTraverser inputQueue) {
+            return this.preParse(commandContext, inputQueue);
+        }
+
+        @Override
+        public @NotNull ArgumentParseResult<String> parse(@NotNull final CommandContext<K> commandContext, @NotNull final StringTraverser inputQueue, final boolean suggestions) {
             if (!inputQueue.hasNext()) {
-                return ArgumentParseResult.failure(
-                    new ArgumentParseException("Cannot accept empty argument for string arguments.")
-                );
+                return ArgumentParseResult.success(null);
             }
             try {
                 final String input = switch (this.argument.stringMode) {

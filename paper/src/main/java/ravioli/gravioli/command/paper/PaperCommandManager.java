@@ -11,13 +11,9 @@ import ravioli.gravioli.command.Command;
 import ravioli.gravioli.command.CommandManager;
 import ravioli.gravioli.command.CommandNode;
 import ravioli.gravioli.command.exception.permission.InsufficientPermissionsException;
-import ravioli.gravioli.command.paper.net.PlayerPacketInterceptor;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
 
 public final class PaperCommandManager extends CommandManager<CommandSender> {
     private final Plugin plugin;

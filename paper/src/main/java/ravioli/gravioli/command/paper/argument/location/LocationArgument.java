@@ -60,10 +60,7 @@ public final class LocationArgument extends Argument<CommandLocation, LocationAr
             }
             int argumentCount = 0;
 
-            while (inputQueue.hasNext()) {
-                if (argumentCount > 3) {
-                    return false;
-                }
+            while (inputQueue.hasNext() && argumentCount < 3) {
                 inputQueue.traverseWhitespace();
 
                 if (!inputQueue.hasNext()) {
@@ -76,11 +73,34 @@ public final class LocationArgument extends Argument<CommandLocation, LocationAr
                 }
                 argumentCount++;
             }
-            return argumentCount >= 0 && argumentCount <= 3;
+            return argumentCount >= 3;
         }
 
         @Override
-        public @NotNull ArgumentParseResult<CommandLocation> parse(@NotNull final CommandContext<CommandSender> commandContext, @NotNull final StringTraverser inputQueue){
+        public boolean isOrCouldBeValid(@NotNull final CommandContext<CommandSender> commandContext, @NotNull final StringTraverser inputQueue) {
+            if (!inputQueue.hasNext()) {
+                return true;
+            }
+            int argumentCount = 0;
+
+            while (inputQueue.hasNext() && argumentCount < 3) {
+                inputQueue.traverseWhitespace();
+
+                if (!inputQueue.hasNext()) {
+                    break;
+                }
+                final String potentialArg = inputQueue.readString();
+
+                if (!this.isValidCoordinateArgument(potentialArg)) {
+                    return false;
+                }
+                argumentCount++;
+            }
+            return true;
+        }
+
+        @Override
+        public @NotNull ArgumentParseResult<CommandLocation> parse(@NotNull final CommandContext<CommandSender> commandContext, @NotNull final StringTraverser inputQueue, final boolean suggestions) {
             final CoordinateResult x;
             final CoordinateResult y;
             final CoordinateResult z;
@@ -90,6 +110,9 @@ public final class LocationArgument extends Argument<CommandLocation, LocationAr
                 y = this.parseCoordinate(inputQueue);
                 z = this.parseCoordinate(inputQueue);
             } catch (final ArgumentParseException e) {
+                if (suggestions) {
+                    return ArgumentParseResult.processSuggestions();
+                }
                 return ArgumentParseResult.failure(e);
             }
             final Location origin;
@@ -120,8 +143,10 @@ public final class LocationArgument extends Argument<CommandLocation, LocationAr
                     (context, inputQueue) -> {
                         final List<Suggestion> suggestions = new ArrayList<>();
                         final List<String> enteredCoords = new ArrayList<>();
-                        final List<String> whitespaceBetween = new ArrayList<>();
                         final StringBuilder previousInput = new StringBuilder();
+                        // "~
+
+                        inputQueue.traverseWhitespace();
 
                         while (inputQueue.hasNext() && enteredCoords.size() < 3) {
                             final int whitespace = inputQueue.traverseWhitespace();
@@ -130,8 +155,6 @@ public final class LocationArgument extends Argument<CommandLocation, LocationAr
                             if (!previousInput.isEmpty()) {
                                 previousInput.append(spacer);
                             }
-                            whitespaceBetween.add(spacer);
-
                             if (!inputQueue.hasNext()) {
                                 break;
                             }
@@ -143,11 +166,15 @@ public final class LocationArgument extends Argument<CommandLocation, LocationAr
                         final String input = previousInput.toString();
                         final StringBuilder suggestionBuilder = new StringBuilder(input);
 
+                        if (enteredCoords.size() < 3 && !input.endsWith(" ")) {
+                            suggestionBuilder.append(" ");
+                        }
                         for (int i = enteredCoords.size(); i < 3; i++) {
-                            if (i > 0) {
-                                suggestionBuilder.append(i < whitespaceBetween.size() ? whitespaceBetween.get(i - 1) : " ");
-                            }
                             suggestionBuilder.append(RELATIVE_PREFIX);
+
+                            if (i < 2) {
+                                suggestionBuilder.append(" ");
+                            }
                         }
                         final String suggestion = suggestionBuilder.toString();
 

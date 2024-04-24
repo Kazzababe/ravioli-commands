@@ -55,13 +55,7 @@ public final class CommandListeners implements Listener {
     @EventHandler
     private void onPlayerQuit(@NotNull final PlayerQuitEvent event) {
         final Player player = event.getPlayer();
-        final PlayerPacketInterceptor packetInterceptor = this.packetInterceptors.remove(player.getUniqueId());
 
-        if (packetInterceptor == null) {
-            return;
-        }
-        final ServerPlayer serverPlayer = ((CraftPlayer) player).getHandle();
-
-        serverPlayer.connection.connection.channel.pipeline().remove(packetInterceptor);
+        this.packetInterceptors.remove(player.getUniqueId());
     }
 }

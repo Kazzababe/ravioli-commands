@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull;
 import ravioli.gravioli.command.argument.suggestion.Suggestion;
 import ravioli.gravioli.command.argument.suggestion.SuggestionProvider;
 import ravioli.gravioli.command.context.CommandContext;
-import ravioli.gravioli.command.exception.ArgumentParseException;
 import ravioli.gravioli.command.exception.parse.EnumArgumentMismatchException;
 import ravioli.gravioli.command.parse.StringTraverser;
 import ravioli.gravioli.command.parse.result.ArgumentParseResult;
@@ -56,7 +55,12 @@ public final class EnumArgument<E extends Enum<E>, K> extends Argument<E, EnumAr
         }
 
         @Override
-        public @NotNull ArgumentParseResult<E> parse(@NotNull final CommandContext<K> commandContext, @NotNull final StringTraverser inputQueue){
+        public boolean isOrCouldBeValid(@NotNull final CommandContext<K> commandContext, @NotNull final StringTraverser inputQueue) {
+            return this.preParse(commandContext, inputQueue);
+        }
+
+        @Override
+        public @NotNull ArgumentParseResult<E> parse(@NotNull final CommandContext<K> commandContext, @NotNull final StringTraverser inputQueue, final boolean suggestions) {
             final String input = inputQueue.readString();
 
             if (this.enumValues.contains(input.toLowerCase())) {
