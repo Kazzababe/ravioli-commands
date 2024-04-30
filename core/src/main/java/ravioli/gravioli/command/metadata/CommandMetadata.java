@@ -33,13 +33,13 @@ public class CommandMetadata<T> {
     }
 
     public static class Builder<T, K extends Builder<T, K>> {
-        private final String name;
+        protected final String name;
 
-        private String[] aliases;
-        private String description;
-        private Executor defaultExecutor;
-        private String permission;
-        private CommandExceptionHandler<T> commandExceptionHandler;
+        protected String[] aliases;
+        protected String description;
+        protected Executor defaultExecutor;
+        protected String permission;
+        protected CommandExceptionHandler<T> commandExceptionHandler;
 
         public Builder(@NotNull final String name) {
             this.name = name;
