@@ -1,5 +1,6 @@
 package ravioli.gravioli.command.paper;
 
+import lombok.Getter;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
@@ -17,6 +18,7 @@ import java.util.Arrays;
 import java.util.Locale;
 
 public final class PaperCommandManager extends CommandManager<CommandSender> {
+    @Getter
     private final Plugin plugin;
 
     private boolean registeredListener;

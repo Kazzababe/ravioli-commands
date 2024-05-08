@@ -76,6 +76,7 @@ public final class LiteralArgument<K> extends Argument<String, LiteralArgument.L
                         final String input = inputQueue.readString();
                         final String lowerCaseInput = input.toLowerCase();
 
+                        System.out.println("\"" + this.match + "\" vs \"" + lowerCaseInput + "\"");
                         if (this.match.startsWith(lowerCaseInput)) {
                             return Collections.singletonList(Suggestion.replaceBasic(input, this.match));
                         }
