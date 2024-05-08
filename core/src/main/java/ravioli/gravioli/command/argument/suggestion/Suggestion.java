@@ -2,11 +2,12 @@ package ravioli.gravioli.command.argument.suggestion;
 
 import org.jetbrains.annotations.NotNull;
 
-// TODO: I'm leaving the methods for replacing text in as I think it's dumb paper doesn't support this by default so I'll attempt to fix
-// Should note that I think they do support it but not if the suggestion contains whitespaces as you'll
-// notice you can submit entire player names as suggestions but when you tab-complete it will replace existing text
-// rather than insert the entire player name at your current cursor position
+import java.util.Objects;
+
 public record Suggestion(@NotNull String replace, @NotNull String text, @NotNull String tooltip) {
+    public static final String PRE_PROCESS_PREFIX = "__ravioli_commands__";
+    public static final String PRE_PROCESS_DELIMITER = "⌶⌫⌶";
+
     public static @NotNull Suggestion basic(@NotNull final String text) {
         return new Suggestion("", text, text);
     }
@@ -21,5 +22,22 @@ public record Suggestion(@NotNull String replace, @NotNull String text, @NotNull
 
     public static @NotNull Suggestion replaceText(@NotNull final String replace, @NotNull final String text) {
         return new Suggestion(replace, text, "");
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || this.getClass() != o.getClass()) return false;
+        final Suggestion that = (Suggestion) o;
+        return Objects.equals(this.text, that.text) && Objects.equals(this.tooltip, that.tooltip);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.text, this.tooltip);
+    }
+
+    public @NotNull String toProcessableFormat() {
+        return PRE_PROCESS_PREFIX + PRE_PROCESS_DELIMITER + this.replace + PRE_PROCESS_DELIMITER + this.text + PRE_PROCESS_DELIMITER + this.tooltip;
     }
 }

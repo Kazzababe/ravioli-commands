@@ -216,8 +216,6 @@ public class CommandManager<T> {
         final CommandNode<?, T> rootNode = command.getRootNode();
         final CommandContext<T> commandContext = new CommandContext<>(commandSender, command);
 
-        System.out.println("SUGGESTION INPUT = " + input);
-
         return this.processSuggestionsForNode(command, commandContext, rootNode, traverser)
             .stream()
             .distinct()

@@ -4,8 +4,6 @@ import org.jetbrains.annotations.NotNull;
 import ravioli.gravioli.command.context.CommandContext;
 import ravioli.gravioli.command.parse.StringTraverser;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 
