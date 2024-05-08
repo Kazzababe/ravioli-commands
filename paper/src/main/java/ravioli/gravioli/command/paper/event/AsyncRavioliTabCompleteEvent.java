@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import ravioli.gravioli.command.Command;
 import ravioli.gravioli.command.argument.suggestion.Suggestion;
 
+import java.util.Collection;
 import java.util.List;
 
 @Getter
@@ -35,6 +36,10 @@ public final class AsyncRavioliTabCompleteEvent extends PlayerEvent {
 
     public void setSuggestions(@NotNull final List<Suggestion> suggestions) {
         this.suggestions.clear();
+        this.suggestions.addAll(suggestions.stream().distinct().toList());
+    }
+
+    public void addSuggestions(@NotNull final Collection<Suggestion> suggestions) {
         this.suggestions.addAll(suggestions.stream().distinct().toList());
     }
 

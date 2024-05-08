@@ -36,10 +36,7 @@ public final class CommandListeners implements Listener {
         if (suggestions.isEmpty()) {
             return;
         }
-        final List<Suggestion> completions = new ArrayList<>(event.getSuggestions());
-
-        completions.addAll(suggestions);
-        event.setSuggestions(completions);
+        event.addSuggestions(suggestions);
     }
 
     @EventHandler

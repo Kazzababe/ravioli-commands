@@ -60,7 +60,7 @@ public final class PlayerPacketInterceptor extends ChannelDuplexHandler {
             }
             final ClientboundCommandSuggestionsPacket outboundPacket = new ClientboundCommandSuggestionsPacket(
                 packet.getId(),
-                convertToSuggestions(suggestions, buffer)
+                convertToSuggestions(suggestions.stream().distinct().toList(), buffer)
             );
 
             ((CraftPlayer) this.player).getHandle().connection.send(outboundPacket);

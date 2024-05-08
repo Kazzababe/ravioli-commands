@@ -144,7 +144,6 @@ public final class LocationArgument extends Argument<CommandLocation, LocationAr
                         final List<Suggestion> suggestions = new ArrayList<>();
                         final List<String> enteredCoords = new ArrayList<>();
                         final StringBuilder previousInput = new StringBuilder();
-                        // "~
 
                         inputQueue.traverseWhitespace();
 
