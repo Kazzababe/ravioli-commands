@@ -3,24 +3,23 @@ package ravioli.gravioli.command.context;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
-import ravioli.gravioli.command.Command;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
+@SuppressWarnings("unchecked")
 @RequiredArgsConstructor
-public final class CommandContext<T> {
+public class CommandContext<T> {
     @Getter
     private final T sender;
-
-    @Getter
-    private final Command<T> command;
 
     private final Map<String, Object> values = new HashMap<>();
 
     public CommandContext(@NotNull final CommandContext<T> commandContext) {
-        this(commandContext.sender, commandContext.command);
+        this(commandContext.sender);
 
         this.values.putAll(commandContext.values);
     }
@@ -30,7 +29,7 @@ public final class CommandContext<T> {
     }
 
     public <K> @NotNull K get(@NotNull final String key) {
-        return (K) this.values.get(key);
+        return Objects.requireNonNull((K) this.values.get(key));
     }
 
     public <K> @NotNull Optional<K> getOptional(@NotNull final String key) {

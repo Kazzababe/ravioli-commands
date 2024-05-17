@@ -1,39 +1,53 @@
 package ravioli.gravioli.example;
 
+import org.bukkit.Material;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
-import ravioli.gravioli.command.argument.StringArgument;
+import ravioli.gravioli.command.argument.command.EnumArgument;
+import ravioli.gravioli.command.argument.command.IntegerArgument;
+import ravioli.gravioli.command.argument.command.LiteralArgument;
+import ravioli.gravioli.command.argument.command.StringArgument;
 import ravioli.gravioli.command.paper.PaperCommand;
 import ravioli.gravioli.command.paper.PaperCommandTrack;
-import ravioli.gravioli.command.paper.argument.PlayerArgument;
-import ravioli.gravioli.command.paper.argument.location.CommandLocation;
-import ravioli.gravioli.command.paper.argument.location.LocationArgument;
 import ravioli.gravioli.command.paper.metadata.PaperCommandMetadata;
 
 public final class ExampleCommand extends PaperCommand {
     public ExampleCommand(@NotNull final Plugin plugin) {
         this.add(
             PaperCommandTrack.command()
-                .argument(StringArgument.of("value"))
-                .argument(PlayerArgument.of("player"))
-                .handler(context -> context.getSender().sendMessage("Cool: " + context.<String>get("value")))
+                .argument(LiteralArgument.of("throw"))
+                .argument(EnumArgument.of("value", Material.class))
+                .argument(EnumArgument.of("value2", Material.class))
+                .permission("testing")
+                .handler(context -> {
+                    context.getSender().sendMessage(
+                        "throw value = " + context.<Material>get("value")
+                    );
+                    context.getSender().sendMessage(
+                        "throw value2 = " + context.<Material>get("value2")
+                    );
+                })
         );
         this.add(
             PaperCommandTrack.command()
-                .argument(LocationArgument.of("location"))
-                .handler(context -> context.getSender().sendMessage("Cool with location: " + context.<CommandLocation>get("location")))
+                .argument(LiteralArgument.of("test"))
+                .argument(IntegerArgument.optional("value"))
+                .handler(context -> {
+                    context.getSender().sendMessage(
+                        "test value = " + context.<Integer>getOptional("value").orElse(0)
+                    );
+                })
         );
         this.add(
             PaperCommandTrack.command()
-                .argument(StringArgument.of("value"))
-                .argument(LocationArgument.of("location"))
-                .handler(context -> context.getSender().sendMessage("Cool value with location: " + context.<String>get("value") + ", " + context.<CommandLocation>get("location")))
-        );
-        this.add(
-            PaperCommandTrack.command()
-                .argument(StringArgument.of("value"))
-                .argument(StringArgument.of("value2"))
-                .handler(context -> context.getSender().sendMessage("Cool value with value2: " + context.<String>get("value") + ", " + context.<String>get("value2")))
+                .argument(LiteralArgument.of("heck"))
+                .argument(StringArgument.of("what"))
+                .argument(IntegerArgument.optional("value"))
+                .handler(context -> {
+                    context.getSender().sendMessage(
+                        "test value = " + context.<String>get("what") + ":" + context.<Integer>getOptional("value").orElse(0)
+                    );
+                })
         );
     }
 

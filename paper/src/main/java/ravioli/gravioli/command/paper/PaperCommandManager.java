@@ -1,7 +1,6 @@
 package ravioli.gravioli.command.paper;
 
 import lombok.Getter;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
@@ -10,8 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ravioli.gravioli.command.Command;
 import ravioli.gravioli.command.CommandManager;
-import ravioli.gravioli.command.CommandNode;
-import ravioli.gravioli.command.exception.permission.InsufficientPermissionsException;
 import ravioli.gravioli.command.paper.metadata.PaperCommandMetadata;
 
 import java.util.Arrays;
@@ -21,31 +18,38 @@ public final class PaperCommandManager extends CommandManager<CommandSender> {
     @Getter
     private final Plugin plugin;
 
+    @Getter
+    private boolean useBrigadier;
+
     private boolean registeredListener;
 
     public PaperCommandManager(@NotNull final Plugin plugin) {
         this.plugin = plugin;
-        this.setDefaultExceptionHandler((commandContext, exception) -> {
-            if (exception instanceof InsufficientPermissionsException) {
-                commandContext.getSender().sendMessage(
-                    MiniMessage.miniMessage().deserialize("<red>You don't have the required permissions for that.")
-                );
+//        this.setDefaultExceptionHandler((commandContext, exception) -> {
+//            if (exception instanceof InsufficientPermissionsException) {
+//                commandContext.getSender().sendMessage(
+//                    MiniMessage.miniMessage().deserialize("<red>You don't have the required permissions for that.")
+//                );
+//
+//                return;
+//            }
+//            final CommandNode<?, ?> node = exception.getNode();
+//
+//            if (node == null) {
+//                commandContext.getSender().sendMessage(
+//                    MiniMessage.miniMessage().deserialize("<red>Error executing command: <gray>" + exception.getMessage())
+//                );
+//
+//                return;
+//            }
+//            commandContext.getSender().sendMessage(
+//                MiniMessage.miniMessage().deserialize("<red>Invalid command syntax: <gray>/" + node.getUsageString())
+//            );
+//        });
+    }
 
-                return;
-            }
-            final CommandNode<?, ?> node = exception.getNode();
-
-            if (node == null) {
-                commandContext.getSender().sendMessage(
-                    MiniMessage.miniMessage().deserialize("<red>Error executing command: <gray>" + exception.getMessage())
-                );
-
-                return;
-            }
-            commandContext.getSender().sendMessage(
-                MiniMessage.miniMessage().deserialize("<red>Invalid command syntax: <gray>/" + node.getUsageString())
-            );
-        });
+    public void enableBrigadierSupport() {
+        this.useBrigadier = true;
     }
 
     @Override
@@ -61,7 +65,7 @@ public final class PaperCommandManager extends CommandManager<CommandSender> {
             Bukkit.getPluginManager().registerEvents(new CommandListeners(this), this.plugin);
         }
         final CommandMap commandMap = Bukkit.getCommandMap();
-        final String commandName = command.getCommandMetadata().getName().toLowerCase();
+        final String commandName = this.formatCommandName(command.getCommandMetadata().getName());
 
         if (command.getCommandMetadata() instanceof final PaperCommandMetadata paperCommandMetadata && paperCommandMetadata.isOverwriteCommands()) {
             commandMap.getKnownCommands().remove(commandName);
@@ -80,7 +84,7 @@ public final class PaperCommandManager extends CommandManager<CommandSender> {
     }
 
     public void enableAsynchronousCommandExecution() {
-        this.setDefaultExecutor(task -> Bukkit.getScheduler().runTaskAsynchronously(this.plugin, task));
+//        this.setDefaultExecutor(task -> Bukkit.getScheduler().runTaskAsynchronously(this.plugin, task));
     }
 
     public @Nullable Command<CommandSender> findCommand(@NotNull final String alias) {

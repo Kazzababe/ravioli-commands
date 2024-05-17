@@ -1,39 +1,45 @@
-package ravioli.gravioli.command;
+package ravioli.gravioli.command.argument;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
-import ravioli.gravioli.command.argument.Argument;
-import ravioli.gravioli.command.context.CommandContext;
+import ravioli.gravioli.command.argument.command.CommandArgument;
+import ravioli.gravioli.command.argument.execution.CommandExecutor;
+import ravioli.gravioli.command.node.CommandNode;
 
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Executor;
-import java.util.function.Consumer;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class CommandTrack<T> {
-    private final Queue<CommandNode<?, T>> nodes;
-    private final Consumer<CommandContext<T>> handler;
+    private final Queue<CommandNode<T, ?>> nodes;
+    private final CommandExecutor<T> handler;
     private final String permission;
     private final Executor executor;
 
     public static class Builder<T> {
-        protected final Queue<CommandNode<?, T>> nodes = new LinkedList<>();
+        protected final Queue<CommandNode<T, ?>> nodes = new LinkedList<>();
 
-        protected Consumer<CommandContext<T>> handler;
+        protected CommandExecutor<T> handler;
         protected String permission;
         protected Executor executor;
 
-        public @NotNull Builder<T> argument(@NotNull final Argument<?, ?, T, ?> argument) {
+        public @NotNull Builder<T> argument(@NotNull final CommandArgument<T, ?> argument) {
             this.nodes.add(new CommandNode<>(argument));
 
             return this;
         }
 
-        public @NotNull Builder<T> handler(@NotNull final Consumer<CommandContext<T>> handler) {
+        public @NotNull Builder<T> argument(@NotNull final CommandArgument.CommandArgumentBuilder<T, ?, ?, ?> argument) {
+            this.nodes.add(new CommandNode<>(argument.build()));
+
+            return this;
+        }
+
+        public @NotNull Builder<T> handler(@NotNull final CommandExecutor<T> handler) {
             this.handler = handler;
 
             return this;

@@ -7,17 +7,24 @@ import org.jetbrains.annotations.NotNull;
 @Getter
 public final class StringTraverser {
     private final String content;
+    private final boolean endsInWhitespace;
 
     @Setter
     private int cursor;
 
     public StringTraverser(@NotNull final String content) {
         this.content = content.stripLeading();
+        this.endsInWhitespace = content.endsWith(" ");
     }
 
     public StringTraverser(@NotNull final StringTraverser stringTraverser) {
         this.content = stringTraverser.content;
         this.cursor = stringTraverser.cursor;
+        this.endsInWhitespace = stringTraverser.endsInWhitespace;
+    }
+
+    public boolean endsInWhitespace() {
+        return this.endsInWhitespace;
     }
 
     public boolean hasNext() {

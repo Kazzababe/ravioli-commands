@@ -2,12 +2,14 @@ package ravioli.gravioli.command.paper;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginIdentifiableCommand;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
-import ravioli.gravioli.command.parse.result.CommandParseResult;
+import ravioli.gravioli.command.parse.CommandParseResult;
 
 import java.util.List;
 
-public final class PaperCommandWrapper extends Command {
+public final class PaperCommandWrapper extends Command implements PluginIdentifiableCommand {
     private final PaperCommandManager commandManager;
     private final ravioli.gravioli.command.Command<CommandSender> ravioliCommand;
 
@@ -23,7 +25,7 @@ public final class PaperCommandWrapper extends Command {
     @Override
     public boolean execute(@NotNull final CommandSender commandSender, @NotNull final String s, final @NotNull String[] strings) {
         final String command = this.ravioliCommand.getCommandMetadata().getName() + " " + String.join(" ", strings).trim();
-        final CommandParseResult<CommandSender> result = this.commandManager.processCommand(commandSender, this.ravioliCommand, command);
+        final CommandParseResult<CommandSender> result = this.commandManager.parseCommand(commandSender, command);
 
         result.getCommandExecution().run();
 
@@ -31,4 +33,8 @@ public final class PaperCommandWrapper extends Command {
     }
 
 
+    @Override
+    public @NotNull Plugin getPlugin() {
+        return this.commandManager.getPlugin();
+    }
 }

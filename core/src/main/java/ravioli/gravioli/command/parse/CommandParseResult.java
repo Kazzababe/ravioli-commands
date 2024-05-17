@@ -1,4 +1,4 @@
-package ravioli.gravioli.command.parse.result;
+package ravioli.gravioli.command.parse;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -13,8 +13,8 @@ public final class CommandParseResult<T> {
         return new CommandParseResult<>(CommandParseResult.ParseResult.SUCCESS, commandExecution, null);
     }
 
-    public static <T> @NotNull CommandParseResult<T> failure(@NotNull final Runnable commandExecution, @NotNull final CommandParseException exception) {
-        return new CommandParseResult<>(ParseResult.FAILURE, commandExecution, exception);
+    public static <T> @NotNull CommandParseResult<T> failure(@NotNull final CommandParseException exception) {
+        return new CommandParseResult<>(ParseResult.FAILURE, () -> {}, exception);
     }
 
     @Getter
@@ -33,6 +33,10 @@ public final class CommandParseResult<T> {
         this.result = result;
         this.commandExecution = commandExecution;
         this.exception = exception;
+    }
+
+    public boolean isSuccess() {
+        return this.result == ParseResult.SUCCESS;
     }
 
     public @NotNull Optional<@NotNull CommandParseException> getException() {

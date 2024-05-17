@@ -6,8 +6,6 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
-
-            artifactId = "ravioli-commands-core"
         }
     }
 }

@@ -8,9 +8,9 @@ repositories {
 }
 
 dependencies {
-//    implementation(project(":paper"))
-    implementation(project(":core"))
+    implementation(project(":ravioli-commands-core"))
     implementation("ravioli.gravioli:ravioli-commands-paper:1.0-SNAPSHOT")
+
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
 }
 

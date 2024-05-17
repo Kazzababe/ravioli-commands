@@ -5,14 +5,13 @@ import lombok.NoArgsConstructor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ravioli.gravioli.command.CommandNode;
-import ravioli.gravioli.command.CommandTrack;
-import ravioli.gravioli.command.argument.Argument;
-import ravioli.gravioli.command.context.CommandContext;
+import ravioli.gravioli.command.argument.CommandTrack;
+import ravioli.gravioli.command.argument.command.CommandArgument;
+import ravioli.gravioli.command.argument.execution.CommandExecutor;
+import ravioli.gravioli.command.node.CommandNode;
 
 import java.util.Queue;
 import java.util.concurrent.Executor;
-import java.util.function.Consumer;
 
 public final class PaperCommandTrack extends CommandTrack<CommandSender> {
 
@@ -21,8 +20,8 @@ public final class PaperCommandTrack extends CommandTrack<CommandSender> {
     }
 
     private PaperCommandTrack(
-        @NotNull final Queue<CommandNode<?, CommandSender>> commandNodes,
-        @NotNull final Consumer<CommandContext<CommandSender>> handler,
+        @NotNull final Queue<CommandNode<CommandSender, ?>> commandNodes,
+        @NotNull final CommandExecutor<CommandSender> handler,
         @Nullable final String permission,
         @Nullable final Executor executor
     ) {
@@ -30,19 +29,19 @@ public final class PaperCommandTrack extends CommandTrack<CommandSender> {
     }
 
     @Override
-    public Queue<CommandNode<?, CommandSender>> getNodes() {
+    public Queue<CommandNode<CommandSender, ?>> getNodes() {
         return super.getNodes();
     }
 
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static final class Builder extends CommandTrack.Builder<CommandSender>  {
         @Override
-        public PaperCommandTrack.@NotNull Builder argument(@NotNull final Argument<?, ?, CommandSender, ?> argument) {
+        public PaperCommandTrack.@NotNull Builder argument(@NotNull final CommandArgument<CommandSender, ?> argument) {
             return (PaperCommandTrack.Builder) super.argument(argument);
         }
 
         @Override
-        public @NotNull PaperCommandTrack.Builder handler(@NotNull final Consumer<CommandContext<CommandSender>> handler) {
+        public @NotNull PaperCommandTrack.Builder handler(@NotNull final CommandExecutor<CommandSender> handler) {
             return (PaperCommandTrack.Builder) super.handler(handler);
         }
 
