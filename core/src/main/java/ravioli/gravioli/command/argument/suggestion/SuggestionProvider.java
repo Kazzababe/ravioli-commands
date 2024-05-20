@@ -8,16 +8,15 @@ import java.util.List;
 import java.util.function.Supplier;
 
 @FunctionalInterface
-public interface SuggestionProvider<K> {
+public interface SuggestionProvider<T> {
     static <T> @NotNull SuggestionProvider<T> staticCollection(@NotNull final List<String> suggestions) {
         return (commandContext, inputQueue) -> {
             final String input = inputQueue.readString();
             final String lowerCaseInput = input.toLowerCase();
 
-            return suggestions
-                .stream()
+            return suggestions.stream()
                 .filter(suggestion -> suggestion.toLowerCase().startsWith(lowerCaseInput))
-                .map(suggestion -> Suggestion.replaceText(input, suggestion))
+                .map(Suggestion::new)
                 .toList();
         };
     }
@@ -27,15 +26,14 @@ public interface SuggestionProvider<K> {
             final String input = inputQueue.readString();
             final String lowerCaseInput = input.toLowerCase();
 
-            return suggestions
-                .get()
+            return suggestions.get()
                 .stream()
                 .distinct()
                 .filter(suggestion -> suggestion.toLowerCase().startsWith(lowerCaseInput))
-                .map(suggestion -> Suggestion.replaceText(input, suggestion))
+                .map(Suggestion::new)
                 .toList();
         };
     }
 
-    @NotNull List<Suggestion> getSuggestions(@NotNull CommandContext<K> commandContext, @NotNull StringTraverser inputQueue);
+    @NotNull List<Suggestion> apply(@NotNull CommandContext<T> context, @NotNull StringTraverser input);
 }

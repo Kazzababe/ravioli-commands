@@ -43,6 +43,7 @@ public final class CommandLocation  {
 
     public enum CoordinateType {
         ABSOLUTE,
-        RELATIVE;
+        RELATIVE,
+        LOCAL;
     }
 }

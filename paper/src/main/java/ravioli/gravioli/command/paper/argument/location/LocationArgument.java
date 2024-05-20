@@ -1,237 +1,191 @@
 package ravioli.gravioli.command.paper.argument.location;
 
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Triple;
+import net.minecraft.commands.arguments.coordinates.Coordinates;
+import net.minecraft.commands.arguments.coordinates.LocalCoordinates;
+import net.minecraft.commands.arguments.coordinates.WorldCoordinate;
+import net.minecraft.commands.arguments.coordinates.WorldCoordinates;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
-import ravioli.gravioli.command.argument.Argument;
-import ravioli.gravioli.command.argument.ArgumentParser;
+import org.jetbrains.annotations.Nullable;
+import ravioli.gravioli.command.argument.CommandArgumentType;
+import ravioli.gravioli.command.argument.command.CommandArgument;
 import ravioli.gravioli.command.argument.suggestion.Suggestion;
-import ravioli.gravioli.command.argument.suggestion.SuggestionProvider;
 import ravioli.gravioli.command.context.CommandContext;
-import ravioli.gravioli.command.exception.ArgumentParseException;
-import ravioli.gravioli.command.exception.parse.InvalidLocationFormatException;
+import ravioli.gravioli.command.exception.CommandParseException;
 import ravioli.gravioli.command.parse.StringTraverser;
-import ravioli.gravioli.command.parse.result.ArgumentParseResult;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
-public final class LocationArgument extends Argument<CommandLocation, LocationArgument.LocationArgumentParser, CommandSender, LocationArgument> {
-    public static @NotNull LocationArgument of(@NotNull final String id) {
-        return new LocationArgument(id);
+public final class LocationArgument extends CommandArgument<CommandSender, Coordinates> {
+    public static @NotNull LocationArgumentBuilder of(@NotNull final String id) {
+        return new LocationArgumentBuilder(id);
     }
 
     private static final String RELATIVE_PREFIX = "~";
-
-    private final LocationArgumentParser parser;
+    private static final String LOCAL_PREFIX = "^";
 
     private LocationArgument(@NotNull final String id) {
         super(id);
-
-        this.parser = new LocationArgumentParser(this);
     }
 
     @Override
-    public int getPriority() {
-        return 300;
+    protected @NotNull List<Suggestion> parseSuggestions(@NotNull final CommandContext<CommandSender> context, @NotNull final StringTraverser traverser) {
+        return Collections.emptyList(); // There isn't straight forward way to give vector arguments using paper's API so we just return nothing here
     }
 
-    @NotNull
     @Override
-    public LocationArgumentParser getParser() {
-        return this.parser;
-    }
+    public @NotNull Coordinates parse(@NotNull final CommandContext<CommandSender> context, @NotNull final StringTraverser traverser) throws CommandParseException {
+        final CoordinateResult x = this.parseCoordinate(traverser);
+        final CoordinateResult y = this.parseCoordinate(traverser);
+        final CoordinateResult z = this.parseCoordinate(traverser);
+        final Location origin;
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class LocationArgumentParser extends ArgumentParser<CommandLocation, CommandSender> {
-        private final LocationArgument argument;
-
-        @Override
-        public boolean preParse(@NotNull final CommandContext<CommandSender> commandContext, @NotNull final StringTraverser inputQueue) {
-            if (!inputQueue.hasNext()) {
-                return true;
-            }
-            int argumentCount = 0;
-
-            while (inputQueue.hasNext() && argumentCount < 3) {
-                inputQueue.traverseWhitespace();
-
-                if (!inputQueue.hasNext()) {
-                    break;
-                }
-                final String potentialArg = inputQueue.readString();
-
-                if (!this.isValidCoordinateArgument(potentialArg)) {
-                    return false;
-                }
-                argumentCount++;
-            }
-            return argumentCount >= 3;
+        if (context.getSender() instanceof final Entity entity) {
+            origin = entity.getLocation().clone();
+        } else {
+            origin = new Location(Bukkit.getWorlds().get(0), 0, 0, 0);
         }
+        return x.coordinateType == CommandLocation.CoordinateType.LOCAL ?
+            new LocalCoordinates(x.value, y.value, z.value) :
+            new WorldCoordinates(
+                new WorldCoordinate(x.coordinateType == CommandLocation.CoordinateType.RELATIVE, x.value),
+                new WorldCoordinate(y.coordinateType == CommandLocation.CoordinateType.RELATIVE, y.value),
+                new WorldCoordinate(z.coordinateType == CommandLocation.CoordinateType.RELATIVE, z.value)
+            );
+    }
 
-        @Override
-        public boolean isOrCouldBeValid(@NotNull final CommandContext<CommandSender> commandContext, @NotNull final StringTraverser inputQueue) {
-            if (!inputQueue.hasNext()) {
-                return true;
-            }
-            int argumentCount = 0;
-
-            while (inputQueue.hasNext() && argumentCount < 3) {
-                inputQueue.traverseWhitespace();
-
-                if (!inputQueue.hasNext()) {
-                    break;
-                }
-                final String potentialArg = inputQueue.readString();
-
-                if (!this.isValidCoordinateArgument(potentialArg)) {
-                    return false;
-                }
-                argumentCount++;
-            }
+    @Override
+    public boolean isValidForSuggestions(@NotNull final CommandContext<CommandSender> context, @NotNull final StringTraverser traverser) {
+        if (!traverser.hasNext()) {
             return true;
         }
+        int argumentCount = 0;
+        boolean previousLocal = false;
 
-        @Override
-        public @NotNull ArgumentParseResult<CommandLocation> parse(@NotNull final CommandContext<CommandSender> commandContext, @NotNull final StringTraverser inputQueue, final boolean suggestions) {
-            final CoordinateResult x;
-            final CoordinateResult y;
-            final CoordinateResult z;
+        while (traverser.hasNext() && argumentCount < 3) {
+            traverser.traverseWhitespace();
 
-            try {
-                x = this.parseCoordinate(inputQueue);
-                y = this.parseCoordinate(inputQueue);
-                z = this.parseCoordinate(inputQueue);
-            } catch (final ArgumentParseException e) {
-                if (suggestions) {
-                    return ArgumentParseResult.processSuggestions();
-                }
-                return ArgumentParseResult.failure(e);
+            if (!traverser.hasNext()) {
+                break;
             }
-            final Location origin;
+            final String potentialArg = traverser.readString();
+            final String currentArg = this.getCoordinatePrefix(potentialArg);
+            final boolean isLocal = currentArg != null && currentArg.equals(LOCAL_PREFIX);
 
-            if (commandContext.getSender() instanceof final Entity entity) {
-                origin = entity.getLocation().clone();
-            } else {
-                origin = new Location(Bukkit.getWorlds().get(0), 0, 0, 0);
-            }
-            final Location location = new Location(origin.getWorld(),
-                x.coordinateType == CommandLocation.CoordinateType.ABSOLUTE ? x.value : origin.getX() + x.value,
-                y.coordinateType == CommandLocation.CoordinateType.ABSOLUTE ? y.value : origin.getY() + y.value,
-                z.coordinateType == CommandLocation.CoordinateType.ABSOLUTE ? z.value : origin.getZ() + z.value,
-                origin.getYaw(),
-                origin.getPitch()
-            );
-            final Triple<Double, Double, Double> respectiveCoordinates = Triple.of(x.value, y.value, z.value);
-            final Triple<CommandLocation.CoordinateType, CommandLocation.CoordinateType, CommandLocation.CoordinateType> respectiveCoordinateTypes =
-                Triple.of(x.coordinateType, y.coordinateType, z.coordinateType);
-
-            return ArgumentParseResult.success(new CommandLocation(origin, location, respectiveCoordinates, respectiveCoordinateTypes));
-        }
-
-        @Override
-        public @NotNull SuggestionProvider<CommandSender> getSuggestionProvider() {
-            return Optional.ofNullable(this.argument.getSuggestionProvider())
-                .orElseGet(() ->
-                    (context, inputQueue) -> {
-                        final List<Suggestion> suggestions = new ArrayList<>();
-                        final List<String> enteredCoords = new ArrayList<>();
-                        final StringBuilder previousInput = new StringBuilder();
-
-                        inputQueue.traverseWhitespace();
-
-                        while (inputQueue.hasNext() && enteredCoords.size() < 3) {
-                            final int whitespace = inputQueue.traverseWhitespace();
-                            final String spacer = StringUtils.repeat(' ', whitespace);
-
-                            if (!previousInput.isEmpty()) {
-                                previousInput.append(spacer);
-                            }
-                            if (!inputQueue.hasNext()) {
-                                break;
-                            }
-                            final String coordinate = inputQueue.readString();
-
-                            enteredCoords.add(coordinate);
-                            previousInput.append(coordinate);
-                        }
-                        final String input = previousInput.toString();
-                        final StringBuilder suggestionBuilder = new StringBuilder(input);
-
-                        if (enteredCoords.size() < 3 && !input.endsWith(" ")) {
-                            suggestionBuilder.append(" ");
-                        }
-                        for (int i = enteredCoords.size(); i < 3; i++) {
-                            suggestionBuilder.append(RELATIVE_PREFIX);
-
-                            if (i < 2) {
-                                suggestionBuilder.append(" ");
-                            }
-                        }
-                        final String suggestion = suggestionBuilder.toString();
-
-                        suggestions.add(Suggestion.replaceText(input, suggestion));
-
-                        return suggestions;
-                    }
-                );
-        }
-
-        private boolean isValidCoordinateArgument(@NotNull String arg) {
-            if (arg.startsWith(RELATIVE_PREFIX)) {
-                arg = arg.substring(1);
-            }
-            if (arg.isBlank()) {
-                return true;
-            }
-            try {
-                Double.parseDouble(arg);
-
-                return true;
-            } catch (final NumberFormatException e) {
+            if (currentArg == null || (argumentCount > 0 && isLocal != previousLocal)) {
                 return false;
             }
+            previousLocal = isLocal;
+            argumentCount++;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean isValidForExecution(@NotNull final CommandContext<CommandSender> context, @NotNull final StringTraverser traverser) {
+        if (!traverser.hasNext()) {
+            return true;
+        }
+        int argumentCount = 0;
+        boolean previousLocal = false;
+
+        while (traverser.hasNext() && argumentCount < 3) {
+            traverser.traverseWhitespace();
+
+            if (!traverser.hasNext()) {
+                break;
+            }
+            final String potentialArg = traverser.readString();
+            final String currentArg = this.getCoordinatePrefix(potentialArg);
+            final boolean isLocal = currentArg != null && currentArg.equals(LOCAL_PREFIX);
+
+            if (currentArg == null || (argumentCount > 0 && isLocal != previousLocal)) {
+                return false;
+            }
+            previousLocal = isLocal;
+            argumentCount++;
+        }
+        return argumentCount >= 3;
+    }
+
+    @Override
+    public @NotNull CommandArgumentType getType() {
+        return CommandArgumentType.GREEDY_STRING;
+    }
+
+    @Override
+    public boolean shouldPrioritizeNativeSuggestions() {
+        return false;
+    }
+
+    public static final class LocationArgumentBuilder extends CommandArgumentBuilder<CommandSender, Coordinates, LocationArgument, LocationArgumentBuilder> {
+        private LocationArgumentBuilder(@NotNull final String id) {
+            super(id);
         }
 
-        private @NotNull CoordinateResult parseCoordinate(final StringTraverser inputQueue) throws ArgumentParseException {
-            inputQueue.traverseWhitespace();
-            final String input = inputQueue.readString();
+        @Override
+        protected LocationArgument createArgument() {
+            return new LocationArgument(this.id);
+        }
+    }
 
-            if (input.startsWith(RELATIVE_PREFIX)) {
-                final String relativeValue = input.substring(RELATIVE_PREFIX.length());
+    private @Nullable String getCoordinatePrefix(@NotNull String arg) {
+        String prefix = "";
 
-                if (relativeValue.isEmpty()) {
-                    return new CoordinateResult(0, CommandLocation.CoordinateType.RELATIVE);
-                }
-                try {
-                    return new CoordinateResult(Double.parseDouble(relativeValue), CommandLocation.CoordinateType.RELATIVE);
-                } catch (final NumberFormatException e) {
-                    throw new InvalidLocationFormatException(relativeValue);
-                }
+        if (arg.startsWith(RELATIVE_PREFIX) || arg.startsWith(LOCAL_PREFIX)) {
+            prefix = String.valueOf(arg.charAt(0));
+            arg = arg.substring(1);
+        }
+        try {
+            if (!arg.isBlank()) {
+                Double.parseDouble(arg);
+            }
+            return prefix;
+        } catch (final NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private @NotNull CoordinateResult parseCoordinate(final StringTraverser inputQueue) throws CommandParseException {
+        inputQueue.traverseWhitespace();
+        final String input = inputQueue.readString();
+        final CommandLocation.CoordinateType coordinateType = input.startsWith(RELATIVE_PREFIX) ?
+            CommandLocation.CoordinateType.RELATIVE :
+            input.startsWith(LOCAL_PREFIX) ?
+                CommandLocation.CoordinateType.LOCAL :
+                CommandLocation.CoordinateType.ABSOLUTE;
+
+        if (coordinateType != CommandLocation.CoordinateType.ABSOLUTE) {
+            final String relativeValue = input.substring(1);
+
+            if (relativeValue.isEmpty()) {
+                return new CoordinateResult(0, coordinateType);
             }
             try {
-                return new CoordinateResult(Double.parseDouble(input), CommandLocation.CoordinateType.ABSOLUTE);
+                return new CoordinateResult(Double.parseDouble(relativeValue), coordinateType);
             } catch (final NumberFormatException e) {
-                throw new InvalidLocationFormatException(input);
+                throw new CommandParseException(relativeValue);
             }
-
+        }
+        try {
+            return new CoordinateResult(Double.parseDouble(input), CommandLocation.CoordinateType.ABSOLUTE);
+        } catch (final NumberFormatException e) {
+            throw new CommandParseException(input);
         }
 
-        private static class CoordinateResult {
-            private final double value;
-            private final CommandLocation.CoordinateType coordinateType;
+    }
 
-            private CoordinateResult(final double value, final CommandLocation.CoordinateType coordinateType) {
-                this.value = value;
-                this.coordinateType = coordinateType;
-            }
+    private static class CoordinateResult {
+        private final double value;
+        private final CommandLocation.CoordinateType coordinateType;
+
+        private CoordinateResult(final double value, final CommandLocation.CoordinateType coordinateType) {
+            this.value = value;
+            this.coordinateType = coordinateType;
         }
     }
 }

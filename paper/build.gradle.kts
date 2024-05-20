@@ -1,4 +1,5 @@
 plugins {
+    `java-library`
     `maven-publish`
     id("com.github.johnrengelman.shadow") version("8.1.1")
     id("io.papermc.paperweight.userdev") version("1.5.11")
@@ -9,7 +10,8 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":core"))
+    api(project(":ravioli-commands-core"))
+    api(project(":ravioli-commands-brigadier"))
 
     paperweight.paperDevBundle("1.20.4-R0.1-SNAPSHOT")
 }
@@ -23,9 +25,10 @@ tasks {
 publishing {
     publications {
         register<MavenPublication>("devBundle") {
-            artifact(tasks.reobfJar)
-
-            artifactId = "ravioli-commands-paper"
+            artifact(tasks.reobfJar) {
+                artifactId = "ravioli-commands-paper"
+                classifier = ""
+            }
         }
     }
 }
