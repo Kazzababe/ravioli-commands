@@ -144,7 +144,7 @@ public abstract class BrigadierParser<T, K> {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    private final @NotNull ArgumentBuilder<K, ?> createBrigadierNode(@NotNull final Command<T> command, @NotNull final ravioli.gravioli.command.node.CommandNode<T, ?> ravioliNode) {
+    private @NotNull ArgumentBuilder<K, ?> createBrigadierNode(@NotNull final Command<T> command, @NotNull final ravioli.gravioli.command.node.CommandNode<T, ?> ravioliNode) {
         final CommandArgument<T, ?> argument = ravioliNode.getArgument();
         final ArgumentBuilder<K, ?> brigadierNode;
 

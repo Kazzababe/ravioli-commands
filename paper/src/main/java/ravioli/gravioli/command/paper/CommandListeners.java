@@ -26,7 +26,7 @@ public final class CommandListeners implements Listener {
     @SuppressWarnings("UnstableApiUsage")
     @EventHandler
     private void onCommandRegistered(@NotNull final CommandRegisteredEvent<BukkitBrigadierCommandSource> event) {
-        if (!this.commandManager.doesEnvironmentSupportBrigadier()) {
+        if (!this.commandManager.isEnableBrigadierSupport() || !this.commandManager.doesEnvironmentSupportBrigadier()) {
             return;
         }
         final var command = event.getCommand();
@@ -55,7 +55,7 @@ public final class CommandListeners implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     private void onPreProcessTabCompletion(@NotNull final AsyncTabCompleteEvent event) {
-        if (this.commandManager.doesEnvironmentSupportBrigadier()) {
+        if (this.commandManager.isEnableBrigadierSupport() && this.commandManager.doesEnvironmentSupportBrigadier()) {
             return;
         }
         final String buffer = event.getBuffer().substring(1);

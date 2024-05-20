@@ -9,6 +9,7 @@ import ravioli.gravioli.command.argument.command.LiteralArgument;
 import ravioli.gravioli.command.argument.command.StringArgument;
 import ravioli.gravioli.command.paper.PaperCommand;
 import ravioli.gravioli.command.paper.PaperCommandTrack;
+import ravioli.gravioli.command.paper.argument.location.LocationArgument;
 import ravioli.gravioli.command.paper.metadata.PaperCommandMetadata;
 
 public final class ExampleCommand extends PaperCommand {
@@ -42,7 +43,7 @@ public final class ExampleCommand extends PaperCommand {
             PaperCommandTrack.command()
                 .argument(LiteralArgument.of("heck"))
                 .argument(StringArgument.of("what"))
-                .argument(IntegerArgument.optional("value"))
+                .argument(LocationArgument.of("value"))
                 .handler(context -> {
                     context.getSender().sendMessage(
                         "test value = " + context.<String>get("what") + ":" + context.<Integer>getOptional("value").orElse(0)

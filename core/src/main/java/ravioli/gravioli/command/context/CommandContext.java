@@ -35,9 +35,4 @@ public class CommandContext<T> {
         return Optional.ofNullable(this.values.get(key))
             .map(value -> (K) value);
     }
-
-    public void apply(@NotNull final CommandContext<T> other) {
-        other.values.clear();
-        other.values.putAll(this.values);
-    }
 }

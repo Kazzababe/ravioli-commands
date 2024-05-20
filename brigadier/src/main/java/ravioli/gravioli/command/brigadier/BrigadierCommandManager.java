@@ -1,11 +1,15 @@
 package ravioli.gravioli.command.brigadier;
 
 import lombok.Getter;
+import lombok.Setter;
 import ravioli.gravioli.command.CommandManager;
 
 @Getter
 public abstract class BrigadierCommandManager<T, K> extends CommandManager<T> {
     private final BrigadierParser<T, K> brigadierParser;
+
+    @Setter
+    private boolean enableBrigadierSupport;
 
     protected BrigadierCommandManager() {
         this.brigadierParser = this.createParser();
