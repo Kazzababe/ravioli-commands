@@ -1,7 +1,6 @@
 import ravioli.gravioli.command.Command;
 import ravioli.gravioli.command.CommandManager;
 import ravioli.gravioli.command.argument.CommandTrack;
-import ravioli.gravioli.command.argument.command.EnumArgument;
 import ravioli.gravioli.command.argument.command.IntegerArgument;
 import ravioli.gravioli.command.argument.command.LiteralArgument;
 import ravioli.gravioli.command.argument.command.StringArgument;
@@ -11,7 +10,7 @@ public final class Test {
     public static void main(final String[] args) {
         final CommandManager<Object> commandManager = new CommandManager<>() {
             @Override
-            protected boolean hasPermission(final Object sender, final String permission) {
+            public boolean hasPermission(final Object sender, final String permission) {
                 return true;
             }
         };

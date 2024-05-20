@@ -1,18 +1,18 @@
 package ravioli.gravioli.command.argument.command;
 
-import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.arguments.FloatArgumentType;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ravioli.gravioli.command.parse.StringTraverser;
+import ravioli.gravioli.command.argument.CommandArgumentType;
 import ravioli.gravioli.command.argument.suggestion.Suggestion;
 import ravioli.gravioli.command.context.CommandContext;
 import ravioli.gravioli.command.exception.CommandParseException;
+import ravioli.gravioli.command.parse.StringTraverser;
 
 import java.util.Collections;
 import java.util.List;
 
+@Getter
 public class FloatArgument<T> extends CommandArgument<T, Float> {
     public static <T> @NotNull FloatArgumentBuilder<T> of(@NotNull final String id) {
         return new FloatArgumentBuilder<>(id);
@@ -99,14 +99,8 @@ public class FloatArgument<T> extends CommandArgument<T, Float> {
     }
 
     @Override
-    public @NotNull ArgumentType<?> getBrigadierType() {
-        if (this.minimum != null) {
-            if (this.maximum != null) {
-                return FloatArgumentType.floatArg(this.minimum, this.maximum);
-            }
-            return FloatArgumentType.floatArg(this.minimum);
-        }
-        return FloatArgumentType.floatArg();
+    public @NotNull CommandArgumentType getType() {
+        return CommandArgumentType.FLOAT;
     }
 
     public static final class FloatArgumentBuilder<T> extends CommandArgumentBuilder<T, Float, FloatArgument<T>, FloatArgumentBuilder<T>> {

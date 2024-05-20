@@ -10,15 +10,11 @@ allprojects {
 
     repositories {
         mavenCentral()
-
-        maven("https://libraries.minecraft.net")
     }
 
     dependencies {
         compileOnly("org.jetbrains:annotations:24.0.1")
         compileOnly("org.projectlombok:lombok:1.18.30")
-
-        implementation("com.mojang:brigadier:1.0.18")
 
         annotationProcessor("org.projectlombok:lombok:1.18.30")
     }

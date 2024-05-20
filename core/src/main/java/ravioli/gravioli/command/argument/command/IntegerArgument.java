@@ -1,18 +1,18 @@
 package ravioli.gravioli.command.argument.command;
 
-import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.arguments.DoubleArgumentType;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ravioli.gravioli.command.parse.StringTraverser;
+import ravioli.gravioli.command.argument.CommandArgumentType;
 import ravioli.gravioli.command.argument.suggestion.Suggestion;
 import ravioli.gravioli.command.context.CommandContext;
 import ravioli.gravioli.command.exception.CommandParseException;
+import ravioli.gravioli.command.parse.StringTraverser;
 
 import java.util.Collections;
 import java.util.List;
 
+@Getter
 public class IntegerArgument<T> extends CommandArgument<T, Integer> {
     public static <T> @NotNull IntegerArgumentBuilder<T> of(@NotNull final String id) {
         return new IntegerArgumentBuilder<>(id);
@@ -99,14 +99,8 @@ public class IntegerArgument<T> extends CommandArgument<T, Integer> {
     }
 
     @Override
-    public @NotNull ArgumentType<?> getBrigadierType() {
-        if (this.minimum != null) {
-            if (this.maximum != null) {
-                return IntegerArgumentType.integer(this.minimum, this.maximum);
-            }
-            return IntegerArgumentType.integer(this.minimum);
-        }
-        return IntegerArgumentType.integer();
+    public @NotNull CommandArgumentType getType() {
+        return CommandArgumentType.INTEGER;
     }
 
     public static final class IntegerArgumentBuilder<T> extends CommandArgumentBuilder<T, Integer, IntegerArgument<T>, IntegerArgumentBuilder<T>> {

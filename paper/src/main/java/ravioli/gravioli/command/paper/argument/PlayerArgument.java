@@ -1,13 +1,10 @@
 package ravioli.gravioli.command.paper.argument;
 
-import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
-import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ravioli.gravioli.command.argument.CommandArgumentType;
 import ravioli.gravioli.command.argument.command.CommandArgument;
 import ravioli.gravioli.command.argument.suggestion.Suggestion;
 import ravioli.gravioli.command.context.CommandContext;
@@ -35,13 +32,13 @@ public final class PlayerArgument extends CommandArgument<CommandSender, Player>
     }
 
     @Override
-    public @Nullable Player parse(@NotNull final CommandContext<CommandSender> context, @NotNull final StringTraverser traverser) throws CommandParseException {
+    public @Nullable Player parse(@NotNull final CommandContext<CommandSender> context, @NotNull final StringTraverser traverser) {
         return null;
     }
 
     @Override
-    public @NotNull ArgumentType<?> getBrigadierType() {
-        return StringArgumentType.word();
+    public @NotNull CommandArgumentType getType() {
+        return CommandArgumentType.WORD;
     }
 
     @Override

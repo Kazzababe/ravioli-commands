@@ -1,9 +1,9 @@
 package ravioli.gravioli.command.argument.command;
 
-import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ravioli.gravioli.command.argument.CommandArgumentType;
 import ravioli.gravioli.command.argument.suggestion.Suggestion;
 import ravioli.gravioli.command.context.CommandContext;
 import ravioli.gravioli.command.exception.CommandParseException;
@@ -12,6 +12,7 @@ import ravioli.gravioli.command.parse.StringTraverser;
 import java.util.Collections;
 import java.util.List;
 
+@Getter
 public class StringArgument<T> extends CommandArgument<T, String> {
     public static <T> @NotNull StringArgumentBuilder<T> of(@NotNull final String id) {
         return new StringArgumentBuilder<>(id);
@@ -53,7 +54,7 @@ public class StringArgument<T> extends CommandArgument<T, String> {
     }
 
     @Override
-    public @Nullable String parse(@NotNull final CommandContext<T> context, @NotNull final StringTraverser traverser) throws CommandParseException {
+    public @Nullable String parse(@NotNull final CommandContext<T> context, @NotNull final StringTraverser traverser) {
         return switch (this.stringMode) {
             case GREEDY -> traverser.readGreedyString();
             case QUOTES -> traverser.readWrappedString('"', true);
@@ -62,11 +63,11 @@ public class StringArgument<T> extends CommandArgument<T, String> {
     }
 
     @Override
-    public @NotNull ArgumentType<?> getBrigadierType() {
+    public @NotNull CommandArgumentType getType() {
         return switch (this.stringMode) {
-            case GREEDY -> StringArgumentType.greedyString();
-            case QUOTES -> StringArgumentType.string();
-            case WORD -> StringArgumentType.word();
+            case GREEDY -> CommandArgumentType.GREEDY_STRING;
+            case QUOTES -> CommandArgumentType.QUOTED_STRING;
+            case WORD -> CommandArgumentType.WORD;
         };
     }
 

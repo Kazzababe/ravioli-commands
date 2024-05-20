@@ -199,5 +199,5 @@ public abstract class CommandManager<T> {
         return false;
     }
 
-    protected abstract boolean hasPermission(@NotNull T sender, @NotNull String permission);
+    public abstract boolean hasPermission(@NotNull T sender, @Nullable String permission);
 }

@@ -1,18 +1,18 @@
 package ravioli.gravioli.command.argument.command;
 
-import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.arguments.DoubleArgumentType;
-import com.mojang.brigadier.arguments.LongArgumentType;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ravioli.gravioli.command.parse.StringTraverser;
+import ravioli.gravioli.command.argument.CommandArgumentType;
 import ravioli.gravioli.command.argument.suggestion.Suggestion;
 import ravioli.gravioli.command.context.CommandContext;
 import ravioli.gravioli.command.exception.CommandParseException;
+import ravioli.gravioli.command.parse.StringTraverser;
 
 import java.util.Collections;
 import java.util.List;
 
+@Getter
 public class LongArgument<T> extends CommandArgument<T, Long> {
     public static <T> @NotNull LongArgumentBuilder<T> of(@NotNull final String id) {
         return new LongArgumentBuilder<>(id);
@@ -99,14 +99,8 @@ public class LongArgument<T> extends CommandArgument<T, Long> {
     }
 
     @Override
-    public @NotNull ArgumentType<?> getBrigadierType() {
-        if (this.minimum != null) {
-            if (this.maximum != null) {
-                return LongArgumentType.longArg(this.minimum, this.maximum);
-            }
-            return LongArgumentType.longArg(this.minimum);
-        }
-        return LongArgumentType.longArg();
+    public @NotNull CommandArgumentType getType() {
+        return CommandArgumentType.LONG;
     }
 
     public static final class LongArgumentBuilder<T> extends CommandArgumentBuilder<T, Long, LongArgument<T>, LongArgumentBuilder<T>> {

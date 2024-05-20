@@ -14,3 +14,5 @@ include("core")
 project(":core").name = "ravioli-commands-core"
 include("paper")
 project(":paper").name = "ravioli-commands-paper"
+include("brigadier")
+project(":brigadier").name = "ravioli-commands-brigadier"

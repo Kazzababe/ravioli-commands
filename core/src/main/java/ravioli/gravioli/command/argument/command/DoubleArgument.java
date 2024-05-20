@@ -1,18 +1,18 @@
 package ravioli.gravioli.command.argument.command;
 
-import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.arguments.DoubleArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ravioli.gravioli.command.parse.StringTraverser;
+import ravioli.gravioli.command.argument.CommandArgumentType;
 import ravioli.gravioli.command.argument.suggestion.Suggestion;
 import ravioli.gravioli.command.context.CommandContext;
 import ravioli.gravioli.command.exception.CommandParseException;
+import ravioli.gravioli.command.parse.StringTraverser;
 
 import java.util.Collections;
 import java.util.List;
 
+@Getter
 public class DoubleArgument<T> extends CommandArgument<T, Double> {
     public static <T> @NotNull DoubleFloatArgumentBuilder<T> of(@NotNull final String id) {
         return new DoubleFloatArgumentBuilder<>(id);
@@ -94,19 +94,13 @@ public class DoubleArgument<T> extends CommandArgument<T, Double> {
     }
 
     @Override
-    public boolean shouldDefaultSuggestionsToBrigadier() {
-        return true;
+    public @NotNull CommandArgumentType getType() {
+        return CommandArgumentType.DOUBLE;
     }
 
     @Override
-    public @NotNull ArgumentType<?> getBrigadierType() {
-        if (this.minimum != null) {
-            if (this.maximum != null) {
-                return DoubleArgumentType.doubleArg(this.minimum, this.maximum);
-            }
-            return DoubleArgumentType.doubleArg(this.minimum);
-        }
-        return DoubleArgumentType.doubleArg();
+    public boolean shouldDefaultSuggestionsToBrigadier() {
+        return true;
     }
 
     public static final class DoubleFloatArgumentBuilder<T> extends CommandArgumentBuilder<T, Double, DoubleArgument<T>, DoubleFloatArgumentBuilder<T>> {

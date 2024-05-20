@@ -1,10 +1,9 @@
 package ravioli.gravioli.command.paper.argument.location;
 
-import com.mojang.brigadier.arguments.ArgumentType;
-import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ravioli.gravioli.command.argument.CommandArgumentType;
 import ravioli.gravioli.command.argument.command.CommandArgument;
 import ravioli.gravioli.command.argument.suggestion.Suggestion;
 import ravioli.gravioli.command.context.CommandContext;
@@ -30,7 +29,7 @@ public final class LocationArgument extends CommandArgument<CommandSender, Comma
     }
 
     @Override
-    public @Nullable CommandLocation parse(@NotNull final CommandContext<CommandSender> context, @NotNull final StringTraverser traverser) throws CommandParseException {
+    public @Nullable CommandLocation parse(@NotNull final CommandContext<CommandSender> context, @NotNull final StringTraverser traverser) {
         return null;
     }
 
@@ -45,7 +44,7 @@ public final class LocationArgument extends CommandArgument<CommandSender, Comma
     }
 
     @Override
-    public ArgumentType<?> getBrigadierType() {
-        return Vec3Argument.vec3();
+    public @NotNull CommandArgumentType getType() {
+        return CommandArgumentType.GREEDY_STRING;
     }
 }

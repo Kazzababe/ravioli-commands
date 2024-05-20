@@ -3,10 +3,10 @@ package ravioli.gravioli.command.node;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ravioli.gravioli.command.context.CommandContext;
-import ravioli.gravioli.command.parse.StringTraverser;
 import ravioli.gravioli.command.argument.CommandProcessable;
 import ravioli.gravioli.command.argument.command.CommandArgument;
+import ravioli.gravioli.command.context.CommandContext;
+import ravioli.gravioli.command.parse.StringTraverser;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -55,22 +55,6 @@ public final class CommandNode<T, K> implements CommandProcessable<T> {
 
     public void addChildPermission(@NotNull final String permission) {
         this.childrenPermissions.add(permission);
-    }
-
-    public @NotNull String getUsageString() {
-//        final List<String> parts = new ArrayList<>();
-//        CommandNode<?, K> node = this;
-//
-//        while (node != null) {
-//            if (node.getArgument() != null) {
-//                parts.add(node.getArgument().getUsageRepresentation());
-//            }
-//            node = node.getParent();
-//        }
-//        Collections.reverse(parts);
-//
-//        return String.join(" ", parts);
-        return "";
     }
 
     @Override

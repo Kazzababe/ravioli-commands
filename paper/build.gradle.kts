@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
     api(project(":ravioli-commands-core"))
+    api(project(":ravioli-commands-brigadier"))
 
     paperweight.paperDevBundle("1.20.4-R0.1-SNAPSHOT")
 }

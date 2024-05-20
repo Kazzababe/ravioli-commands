@@ -1,14 +1,12 @@
 package ravioli.gravioli.command.argument.command;
 
-import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.arguments.FloatArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ravioli.gravioli.command.parse.StringTraverser;
+import ravioli.gravioli.command.argument.CommandArgumentType;
 import ravioli.gravioli.command.argument.suggestion.Suggestion;
 import ravioli.gravioli.command.context.CommandContext;
 import ravioli.gravioli.command.exception.CommandParseException;
+import ravioli.gravioli.command.parse.StringTraverser;
 
 import java.util.Arrays;
 import java.util.List;
@@ -66,15 +64,15 @@ public class EnumArgument<T, E extends Enum<E>> extends CommandArgument<T, E> {
     }
 
     @Override
-    public @Nullable E parse(@NotNull final CommandContext<T> context, @NotNull final StringTraverser traverser) throws CommandParseException {
+    public @Nullable E parse(@NotNull final CommandContext<T> context, @NotNull final StringTraverser traverser) {
         final String input = traverser.readString().toUpperCase(Locale.ROOT);
 
         return Enum.valueOf(this.enumClass, input);
     }
 
     @Override
-    public @NotNull ArgumentType<?> getBrigadierType() {
-        return StringArgumentType.word();
+    public @NotNull CommandArgumentType getType() {
+        return CommandArgumentType.WORD;
     }
 
     public static final class EnumArgumentBuilder<T, E extends Enum<E>> extends CommandArgumentBuilder<T, E, EnumArgument<T, E>, EnumArgumentBuilder<T, E>> {

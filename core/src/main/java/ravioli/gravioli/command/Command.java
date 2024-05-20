@@ -30,7 +30,6 @@ public abstract class Command<T> {
     private final Map<UUID, CommandExecutor<T>> nodeExecutionHandlers;
     private final Map<UUID, String> nodePermissions;
     private final Map<UUID, Executor> nodeExecutors;
-    @Getter
     private final Set<String> allAliases;
 
     public Command() {

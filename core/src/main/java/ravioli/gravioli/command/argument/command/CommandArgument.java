@@ -1,17 +1,17 @@
 package ravioli.gravioli.command.argument.command;
 
-import com.mojang.brigadier.arguments.ArgumentType;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ravioli.gravioli.command.parse.StringTraverser;
+import ravioli.gravioli.command.argument.CommandArgumentType;
 import ravioli.gravioli.command.argument.CommandProcessable;
 import ravioli.gravioli.command.argument.suggestion.Suggestion;
 import ravioli.gravioli.command.argument.suggestion.SuggestionProvider;
 import ravioli.gravioli.command.context.CommandContext;
 import ravioli.gravioli.command.exception.CommandParseException;
+import ravioli.gravioli.command.parse.StringTraverser;
 
 import java.util.List;
 
@@ -44,7 +44,7 @@ public abstract class CommandArgument<T, K> implements CommandProcessable<T> {
 
     @Nullable public abstract K parse(@NotNull CommandContext<T> context, @NotNull StringTraverser traverser) throws CommandParseException;
 
-    @NotNull public abstract ArgumentType<?> getBrigadierType();
+    @NotNull public abstract CommandArgumentType getType();
 
     public static abstract class CommandArgumentBuilder<T, K, A extends CommandArgument<T, K>, B extends CommandArgumentBuilder<T, K, A, B>> {
         protected final String id;

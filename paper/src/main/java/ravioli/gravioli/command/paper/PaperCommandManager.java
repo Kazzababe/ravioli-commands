@@ -1,5 +1,6 @@
 package ravioli.gravioli.command.paper;
 
+import com.destroystokyo.paper.brigadier.BukkitBrigadierCommandSource;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
@@ -8,18 +9,17 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ravioli.gravioli.command.Command;
-import ravioli.gravioli.command.CommandManager;
+import ravioli.gravioli.command.brigadier.BrigadierCommandManager;
+import ravioli.gravioli.command.brigadier.BrigadierParser;
+import ravioli.gravioli.command.paper.brigadier.PaperBrigadierParser;
 import ravioli.gravioli.command.paper.metadata.PaperCommandMetadata;
 
 import java.util.Arrays;
 import java.util.Locale;
 
-public final class PaperCommandManager extends CommandManager<CommandSender> {
+public final class PaperCommandManager extends BrigadierCommandManager<CommandSender, BukkitBrigadierCommandSource> {
     @Getter
     private final Plugin plugin;
-
-    @Getter
-    private boolean useBrigadier;
 
     private boolean registeredListener;
 
@@ -48,8 +48,15 @@ public final class PaperCommandManager extends CommandManager<CommandSender> {
 //        });
     }
 
-    public void enableBrigadierSupport() {
-        this.useBrigadier = true;
+    @Override
+    public boolean doesEnvironmentSupportBrigadier() {
+        try {
+            Class.forName("com.destroystokyo.paper.event.brigadier.CommandRegisteredEvent");
+
+            return super.doesEnvironmentSupportBrigadier();
+        } catch (final ClassNotFoundException e) {
+            return false;
+        }
     }
 
     @Override
@@ -76,15 +83,11 @@ public final class PaperCommandManager extends CommandManager<CommandSender> {
     }
 
     @Override
-    protected boolean hasPermission(final @NotNull CommandSender commandSender, @Nullable final String permission) {
+    public boolean hasPermission(final @NotNull CommandSender commandSender, @Nullable final String permission) {
         if (permission == null) {
             return true;
         }
         return commandSender.hasPermission(permission);
-    }
-
-    public void enableAsynchronousCommandExecution() {
-//        this.setDefaultExecutor(task -> Bukkit.getScheduler().runTaskAsynchronously(this.plugin, task));
     }
 
     public @Nullable Command<CommandSender> findCommand(@NotNull final String alias) {
@@ -100,5 +103,10 @@ public final class PaperCommandManager extends CommandManager<CommandSender> {
         final String remaining = String.join(" ", Arrays.copyOfRange(parts, 1, parts.length));
 
         return this.getCommand(remaining);
+    }
+
+    @Override
+    protected BrigadierParser<CommandSender, BukkitBrigadierCommandSource> createParser() {
+        return new PaperBrigadierParser(this);
     }
 }

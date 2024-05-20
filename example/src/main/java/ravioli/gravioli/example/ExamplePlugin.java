@@ -8,7 +8,7 @@ public final class ExamplePlugin extends JavaPlugin {
 
     @Override
     public void onLoad() {
-        this.commandManager.enableBrigadierSupport();
+
     }
 
     @Override
