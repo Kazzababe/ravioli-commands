@@ -36,7 +36,7 @@ public abstract class CommandArgument<T, K> implements CommandProcessable<T> {
         return this.parseSuggestions(context, traverser);
     }
 
-    public boolean shouldDefaultSuggestionsToBrigadier() {
+    public boolean shouldPrioritizeNativeSuggestions() {
         return false;
     }
 

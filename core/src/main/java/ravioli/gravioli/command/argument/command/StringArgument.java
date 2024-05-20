@@ -32,7 +32,7 @@ public class StringArgument<T> extends CommandArgument<T, String> {
     }
 
     @Override
-    public boolean shouldDefaultSuggestionsToBrigadier() {
+    public boolean shouldPrioritizeNativeSuggestions() {
         return true;
     }
 

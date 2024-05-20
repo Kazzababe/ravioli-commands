@@ -99,7 +99,7 @@ public class DoubleArgument<T> extends CommandArgument<T, Double> {
     }
 
     @Override
-    public boolean shouldDefaultSuggestionsToBrigadier() {
+    public boolean shouldPrioritizeNativeSuggestions() {
         return true;
     }
 

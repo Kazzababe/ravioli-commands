@@ -16,10 +16,12 @@ public final class PaperCommandWrapper extends Command implements PluginIdentifi
     public PaperCommandWrapper(@NotNull final PaperCommandManager commandManager, @NotNull final ravioli.gravioli.command.Command<CommandSender> ravioliCommand) {
         super(ravioliCommand.getCommandMetadata().getName().toLowerCase());
 
-        this.setAliases(List.of(ravioliCommand.getCommandMetadata().getAliases()));
-        this.setPermission(ravioliCommand.getCommandMetadata().getPermission());
         this.commandManager = commandManager;
         this.ravioliCommand = ravioliCommand;
+
+        this.setAliases(List.of(ravioliCommand.getCommandMetadata().getAliases()));
+        this.setPermission(ravioliCommand.getCommandMetadata().getPermission());
+        this.setDescription(ravioliCommand.getCommandMetadata().getDescription());
     }
 
     @Override
@@ -31,7 +33,6 @@ public final class PaperCommandWrapper extends Command implements PluginIdentifi
 
         return true;
     }
-
 
     @Override
     public @NotNull Plugin getPlugin() {

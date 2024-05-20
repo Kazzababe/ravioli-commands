@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @SuppressWarnings("rawtypes")
 public abstract class BrigadierParser<T, K> {
@@ -158,7 +159,7 @@ public abstract class BrigadierParser<T, K> {
 
             brigadierNode = RequiredArgumentBuilder.argument(argument.getId(), brigadierType);
 
-            if (!argument.shouldDefaultSuggestionsToBrigadier() || argument.getSuggestionProvider() != null) {
+            if (!argument.shouldPrioritizeNativeSuggestions() || argument.getSuggestionProvider() != null) {
                 ((RequiredArgumentBuilder<K, Object>) brigadierNode)
                     .suggests((context, builder) -> {
                         final StringTraverser traverser = new StringTraverser(builder.getInput());
@@ -200,8 +201,11 @@ public abstract class BrigadierParser<T, K> {
                 .executes(context -> {
                     final CommandContext<T> commandContext = new BrigadierCommandContext(this.getContextSource(context.getSource()), context);
 
-                    Optional.ofNullable(command.getCommandExecutor(ravioliNode)).ifPresent(executor -> {
-                        executor.execute(commandContext);
+                    Optional.ofNullable(command.getCommandExecutor(ravioliNode)).ifPresent(commandExecutor -> {
+                        final Executor executor = Optional.ofNullable(command.getCommandMetadata().getDefaultExecutor())
+                                .orElseGet(() -> Runnable::run);
+
+                        executor.execute(() -> commandExecutor.execute(commandContext));
                     });
 
                     return 1;

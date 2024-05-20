@@ -78,7 +78,7 @@ public class BooleanArgument<T> extends CommandArgument<T, Boolean> {
     }
 
     @Override
-    public boolean shouldDefaultSuggestionsToBrigadier() {
+    public boolean shouldPrioritizeNativeSuggestions() {
         return true;
     }
 

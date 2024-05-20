@@ -118,7 +118,7 @@ public final class LocationArgument extends CommandArgument<CommandSender, Coord
     }
 
     @Override
-    public boolean shouldDefaultSuggestionsToBrigadier() {
+    public boolean shouldPrioritizeNativeSuggestions() {
         return false;
     }
 

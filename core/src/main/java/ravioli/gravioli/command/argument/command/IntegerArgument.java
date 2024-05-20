@@ -94,7 +94,7 @@ public class IntegerArgument<T> extends CommandArgument<T, Integer> {
     }
 
     @Override
-    public boolean shouldDefaultSuggestionsToBrigadier() {
+    public boolean shouldPrioritizeNativeSuggestions() {
         return true;
     }
 

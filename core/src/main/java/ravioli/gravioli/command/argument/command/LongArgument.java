@@ -94,7 +94,7 @@ public class LongArgument<T> extends CommandArgument<T, Long> {
     }
 
     @Override
-    public boolean shouldDefaultSuggestionsToBrigadier() {
+    public boolean shouldPrioritizeNativeSuggestions() {
         return true;
     }
 

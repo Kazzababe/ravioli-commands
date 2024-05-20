@@ -94,7 +94,7 @@ public class FloatArgument<T> extends CommandArgument<T, Float> {
     }
 
     @Override
-    public boolean shouldDefaultSuggestionsToBrigadier() {
+    public boolean shouldPrioritizeNativeSuggestions() {
         return true;
     }
 
